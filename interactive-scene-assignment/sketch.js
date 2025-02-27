@@ -87,10 +87,10 @@ function move() {
 
 
 function drawBody() {
+  fill(0, 255, 0);
   for (let coordinates of locationList) {
     let placeholderX = coordinates[0];
     let placeholderY = coordinates[1];
-    fill(0, 255, 0);
     circle(placeholderX, placeholderY, 25);
   }
 }
