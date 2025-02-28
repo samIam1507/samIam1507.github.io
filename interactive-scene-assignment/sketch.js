@@ -7,7 +7,7 @@
 
 const speed = 5;
 let direction = "right";
-let locationList = [];
+let locationList = [[50, 50]];
 let dx;
 let dy = 0;
 let appleJustEaten = true;
@@ -15,7 +15,10 @@ let appleX;
 let appleY;
 let x = 50;
 let y = 50;
-let addToList = false;
+let placeholderList;
+let placeholderX = 50;
+let placeholderY = 50;
+let overlap = false;
 
 
 function setup() {
@@ -54,27 +57,20 @@ function snakeHeadMotion() {
     if (direction === "right") {
       dx = speed;
       dy = 0;
-      addToList = true;
     }
     if (direction === "down") {
       dy = speed;
       dx = 0;
-      addToList = true;
     }
     if (direction === "left") {
       dx = -speed;
       dy = 0;
-      addToList = true;
     }
     if (direction === "up") {
       dy = -speed;
       dx = 0;
-      addToList = true;
     }
-    if (addToList) {
-      locationList.concat[x, y];
-      addToList = false;
-    }
+    locationList = concat(locationList, [[x, y]]);
   }
 }
 
@@ -85,25 +81,38 @@ function move() {
   circle(x, y, 25);
 }
 
-
 function drawBody() {
   fill(0, 255, 0);
-  for (let coordinates of locationList) {
-    let placeholderX = coordinates[0];
-    let placeholderY = coordinates[1];
+  for (let i = 0; i < locationList.length; i++) {
+    placeholderList = locationList[i];
+    placeholderX = placeholderList[0];
+    placeholderY = placeholderList[1];
     circle(placeholderX, placeholderY, 25);
   }
+  // if (!appleJustEaten) {
+  //   locationList[0].pop();
+  // }
 }
 
 
 function createApple() {
-  if (appleJustEaten) {
-    appleX = floor(random(windowWidth) / 25) * 25;
-    appleY = floor(random(windowHeight) / 25) * 25;
-    appleJustEaten = false;
+  while (appleJustEaten) {
+    appleX = floor(random(5, windowWidth / 25 - 5)) * 25;
+    appleY = floor(random(5, windowHeight / 25 - 5)) * 25;
+    for (let i = 0; i < locationList.length; i++) {
+      let placeholderList = locationList[i];
+      if (appleX === placeholderList[0] && appleY === placeholderList[1]) {
+        overlap = true;
+      }
+    }
+    if (!overlap) {
+      appleJustEaten = false;
+    }
   }
   fill(130, 40, 40);
   circle(appleX, appleY, 25);
+  console.log(appleX, appleY);
+  overlap = false;
 }
 
 function eatApple() {
