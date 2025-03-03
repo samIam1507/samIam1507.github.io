@@ -33,8 +33,8 @@ function draw() {
   snakeHeadMotion();
   move();
   eatApple();
-  createApple();
   drawBody(); 
+  createApple();
 }
 
 function setDirection() {
@@ -70,7 +70,7 @@ function snakeHeadMotion() {
       dy = -speed;
       dx = 0;
     }
-    locationList = concat(locationList, [[x, y]]);
+    locationList = concat(locationList, [[x, y]], [[x-5, y]][[x-10, y]]);
   }
 }
 
@@ -89,14 +89,14 @@ function drawBody() {
     placeholderY = placeholderList[1];
     circle(placeholderX, placeholderY, 25);
   }
-  // if (!appleJustEaten) {
-  //   locationList[0].pop();
-  // }
+  if (!appleJustEaten) {
+    locationList.pop(0);
+  }
 }
 
 
 function createApple() {
-  while (appleJustEaten) {
+  if (appleJustEaten) {
     appleX = floor(random(5, windowWidth / 25 - 5)) * 25;
     appleY = floor(random(5, windowHeight / 25 - 5)) * 25;
     for (let i = 0; i < locationList.length; i++) {
