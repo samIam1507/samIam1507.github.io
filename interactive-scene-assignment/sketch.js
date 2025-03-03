@@ -7,7 +7,7 @@
 
 const speed = 5;
 let direction = "right";
-let locationList = [[50, 50]];
+let locationList = [[49, 50][50, 50]];
 let dx;
 let dy = 0;
 let appleJustEaten = true;
@@ -30,24 +30,24 @@ function draw() {
   background(220);
   fill(40, 40, 130);
   setDirection();
+  eatApple();
   snakeHeadMotion();
   move();
-  eatApple();
   drawBody(); 
   createApple();
 }
 
 function setDirection() {
-  if (keyIsDown(87)) {
+  if (keyIsDown(87) && !(direction === "down")) {
     direction = "up";
   }
-  else if (keyIsDown(68)) {
+  else if (keyIsDown(68) && !(direction === "left")) {
     direction = "right";
   }
-  else if (keyIsDown(83)) {
+  else if (keyIsDown(83) && !(direction === "up")) {
     direction = "down";
   }
-  else if (keyIsDown(65)) {
+  else if (keyIsDown(65) && !(direction === "right")) {
     direction = "left";
   }
 }
@@ -70,7 +70,7 @@ function snakeHeadMotion() {
       dy = -speed;
       dx = 0;
     }
-    locationList = concat(locationList, [[x, y]], [[x-5, y]][[x-10, y]]);
+    recordCoordinates();
   }
 }
 
@@ -88,9 +88,6 @@ function drawBody() {
     placeholderX = placeholderList[0];
     placeholderY = placeholderList[1];
     circle(placeholderX, placeholderY, 25);
-  }
-  if (!appleJustEaten) {
-    locationList.pop(0);
   }
 }
 
@@ -119,4 +116,16 @@ function eatApple() {
   if (x === appleX && y === appleY) {
     appleJustEaten = true;
   }
+}
+
+function recordCoordinates() {
+  locationList = concat(locationList + [[x, y]]);
+  // if (!appleJustEaten) {
+  //   for (let i = 0; i < locationList; i++) {
+  //     if (i > 0) {
+  //       placeholderList += locationList[i];
+  //     }
+  //   }
+  //   locationList = placeholderList;
+  // }
 }
