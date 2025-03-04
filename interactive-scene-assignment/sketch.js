@@ -15,7 +15,6 @@ let appleX;
 let appleY;
 let x;
 let y;
-let placeholderList;
 let placeholderX;
 let placeholderY;
 let overlap = false;
@@ -29,12 +28,12 @@ let obstacleLocationList = [];
 let obstacleX;
 let obstacleY;
 let obstacleNeeded = false;
-let millisDeathDelay = millis(5);
-let millisDeathRecorded;
+let millisDeathDelay = 5000;
+let millisDeathRecorded = 0;
 
-// function preload() {
-//   setting = Image("setting_button.png");
-// }
+function preload() {
+  setting = loadImage("setting_button.png");
+}
 function setup() {
   createCanvas(windowWidth, windowHeight);
   dx = speed;
@@ -43,6 +42,7 @@ function setup() {
 
 function draw() {
   background(220);
+  image(setting, 50, 50);
   setMode();
   mode();
   fill(40, 40, 130);
@@ -77,7 +77,7 @@ function mode() {
     strokeWeight(3);
     text("Game Mode Selection", windowWidth / 2 - 200, windowHeight / 2 - 50);
   }
-  if (activeMode === "mode-selection") {
+  else if (activeMode === "mode-selection") {
     fill("green");
     textSize(30);
     stroke(0);
@@ -88,7 +88,7 @@ function mode() {
     fill("blue");
     text("Basic Mode", windowWidth / 2 - 20, windowHeight + 60 + scrollingPositionChange);
   }
-  if (activeMode === "play-basic") {
+  else if (activeMode === "play-basic") {
     direction = "right";
     locationList = [49, 50, 50, 50];
     x = 50;
@@ -99,7 +99,7 @@ function mode() {
     appleJustEaten = true;
     noStroke();
   }
-  if (activeMode === "obstacle") {
+  else if (activeMode === "obstacle") {
     direction = "right";
     locationList = [49, 50, 50, 50];
     x = 50;
@@ -113,18 +113,25 @@ function mode() {
     obstacleLocationList = [100, 100, 200, 200];
     noStroke();
   }
-  if (activeMode === "dead") {
+  else if (activeMode === "dead") {
     locationList = [];
     x = NaN;
     y = NaN;
     obstacleLocationList = [];
     appleX = NaN;
     appleY = NaN;
+    text("hi", 400, 400);
     millisDeathRecorded = millis();
     activeMode = "reloading";
   }
-  if (activeMode === "reloading") {
-    activeMode = "start";
+  else if (activeMode === "reloading") {
+    background(0);
+    textSize(50);
+    fill(100, 50, 50);
+    text("Thou Hast Perished", 200, 200);
+    if (millis() > millisDeathRecorded + millisDeathDelay) {
+      activeMode = "start";
+    }
   }
 }
 
@@ -236,6 +243,7 @@ function isDead() {
   }
   if (dead) {
     activeMode = "dead";
+    dead = false;
   }
 }
 
