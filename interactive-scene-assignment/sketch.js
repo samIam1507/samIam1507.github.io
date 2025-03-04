@@ -26,6 +26,9 @@ let scrollMode;
 let scrollingPositionChange = 0;
 let obstacleMode = false;
 let obstacleLocationList = [];
+let obstacleX;
+let obstacleY;
+let obstacleNeeded = false;
 
 // function preload() {
 //   setting = Image("setting_button.png");
@@ -48,6 +51,7 @@ function draw() {
   createApple();
   isDead();
   scrolling();
+  obstacle();
 }
 
 function setMode() {
@@ -102,6 +106,8 @@ function mode() {
     activeMode = "ongoing"
     appleJustEaten = true;
     obstacleMode = true;
+    obstacleNeeded = true;
+    obstacleLocationList = [100, 100, 200, 200];
     noStroke();
   }
 }
@@ -171,6 +177,11 @@ function createApple() {
         overlap = true;
       }
     }
+    for (let n = 0; n < obstacleLocationList.length; n += 2) {
+      if (appleX === obstacleLocationList[n] && appleY === obstacleLocationList[n + 1]) {
+        overlap = true;
+      }
+    }
     if (!overlap) {
       appleJustEaten = false;
     }
@@ -183,6 +194,7 @@ function createApple() {
 function eatApple() {
   if (x === appleX && y === appleY) {
     appleJustEaten = true;
+    obstacleNeeded = true;
     lengthVar += 1;
   }
 }
@@ -228,5 +240,32 @@ function scrolling() {
   }
   if (mouseIsPressed) {
     scrollMode = "none";
+  }
+}
+
+function obstacle() {
+  if (obstacleNeeded && obstacleMode) {
+    obstacleNeeded = false;
+    obstacleX = floor(random(5, windowWidth / 25 - 5)) * 25;
+    obstacleY = floor(random(5, windowHeight / 25 - 5)) * 25;
+    for (let i = 0; i < locationList.length; i +=2) {
+     if (obstacleX === locationList[i] && obstacleY === locationList[i + 1]) {
+      obstacleNeeded = true;
+     }
+    }
+    for (let n = 0; n < obstacleLocationList.length; n += 2) {
+      if (obstacleX === obstacleLocationList[n] && obstacleY === obstacleLocationList[n + 1]) {
+        obstacleNeeded = true;
+      }
+    }
+    if (obstacleX === appleX && obstacleY === appleY) {
+      obstacleNeeded = true;
+    }
+    if (!obstacleNeeded) {
+      obstacleLocationList = concat([obstacleX, obstacleY], obstacleLocationList);
+    }
+  }
+  for (let b = 0; b < obstacleLocationList.length; b += 2) {
+    square(obstacleLocationList[b] + 12.5, obstacleLocationList[b + 1] + 12.5, 25);
   }
 }
