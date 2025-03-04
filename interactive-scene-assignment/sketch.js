@@ -6,23 +6,26 @@
 // - describe what you did to take this project "above and beyond"
 
 const speed = 5;
-let direction = "right";
-let locationList = [49, 50, 50, 50];
+let direction;
+let locationList = [];
 let dx;
 let dy = 0;
-let appleJustEaten = true;
+let appleJustEaten;
 let appleX;
 let appleY;
-let x = 50;
-let y = 50;
+let x;
+let y;
 let placeholderList;
-let placeholderX = 50;
-let placeholderY = 50;
+let placeholderX;
+let placeholderY;
 let overlap = false;
 let lengthVar = 3;
 let dead = false;
+let activeMode = "start";
 
-
+// function preload() {
+//   setting = Image("setting_button.png");
+// }
 function setup() {
   createCanvas(windowWidth, windowHeight);
   dx = speed;
@@ -31,6 +34,8 @@ function setup() {
 
 function draw() {
   background(220);
+  setMode();
+  mode();
   fill(40, 40, 130);
   setDirection();
   snakeHeadMotion();
@@ -38,6 +43,35 @@ function draw() {
   drawBody(); 
   createApple();
   isDead();
+}
+
+function setMode() {
+  if (activeMode === "start" && ellipse() );
+}
+
+function mode() {
+  if (activeMode === "start") {
+    fill("red");
+    textSize(22);
+    text("Game Mode Selection", windowWidth / 2 - 20, windowHeight / 2 - 10);
+  }
+  else if (activeMode === "mode-selection") {
+    fill("green")
+    textSize(30);
+    stroke(0);
+    strokeWeight(4);
+    text("(Scroll for More Options)", windowWidth / 2 - 20, windowHeight / 4);
+  }
+  else if (activeMode === "play-basic") {
+    direction = "right";
+    locationList = [49, 50, 50, 50];
+    x = 50;
+    y = 50;
+    placeholderX = 50;
+    placeholderY = 50;
+    activeMode = "ongoing"
+    appleJustEaten = true;
+  }
 }
 
 function setDirection() {
@@ -101,9 +135,6 @@ function createApple() {
       if (appleX === locationList[i] && appleY === locationList[i+1]) {
         overlap = true;
       }
-      if (x === locationList[1] && y === locationList[i + 1]) {
-        dead = true;
-      }
     }
     if (!overlap) {
       appleJustEaten = false;
@@ -130,7 +161,13 @@ function recordCoordinates() {
 }
 
 function isDead() {
+  for (let i = 0; i < locationList.length; i += 2) {
+    if (x === locationList[i] && y === locationList[i + 1]){
+      dead = true; 
+    }
+  }
   if (dead) {
     console.log("dead");
+    dead = false;
   }
 }
