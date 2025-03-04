@@ -6,3 +6,8 @@ html, body {
 canvas {
   display: block;
 }
+script {
+  margin: 10px;
+  padding: 10px;
+  outline-style: groove;
+}

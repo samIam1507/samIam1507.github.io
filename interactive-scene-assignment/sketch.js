@@ -22,6 +22,10 @@ let overlap = false;
 let lengthVar = 3;
 let dead = false;
 let activeMode = "start";
+let scrollMode;
+let scrollingPositionChange = 0;
+let obstacleMode = false;
+let obstacleLocationList = [];
 
 // function preload() {
 //   setting = Image("setting_button.png");
@@ -43,10 +47,21 @@ function draw() {
   drawBody(); 
   createApple();
   isDead();
+  scrolling();
 }
 
 function setMode() {
-  if (activeMode === "start" && ellipse() );
+  if (activeMode === "start" && mouseX > windowWidth / 2 - 20 && mouseX < windowWidth / 2 + 80 && mouseY < windowHeight / 2 - 10 && mouseY > windowHeight / 2 - 30 && mouseIsPressed) {
+    activeMode = "mode-selection";
+  }
+  if (activeMode === "mode-selection" && mouseX > windowWidth / 2 - 20 && mouseX < windowWidth / 2 + 80 && mouseIsPressed) {
+    if (mouseY < windowHeight + scrollingPositionChange && mouseY > windowHeight - 20 + scrollingPositionChange) {
+      activeMode = "obstacle"
+    }
+    if (mouseY < windowHeight + scrollingPositionChange + 60 && mouseY > windowHeight + 40 + scrollingPositionChange) {
+      activeMode = "play-basic"
+    }
+  }
 }
 
 function mode() {
@@ -60,7 +75,11 @@ function mode() {
     textSize(30);
     stroke(0);
     strokeWeight(4);
-    text("(Scroll for More Options)", windowWidth / 2 - 20, windowHeight / 4);
+    text("(Scroll for More Options, Clic to Stop Scrolling)", windowWidth / 2 - 200, windowHeight / 4);
+    fill("yellow")
+    text("Obstacle Mode", windowWidth / 2 - 20, windowHeight + scrollingPositionChange)
+    fill("blue");
+    text("Basic Mode", windowWidth / 2 - 20, windowHeight + 60 + scrollingPositionChange)
   }
   else if (activeMode === "play-basic") {
     direction = "right";
@@ -71,6 +90,19 @@ function mode() {
     placeholderY = 50;
     activeMode = "ongoing"
     appleJustEaten = true;
+    noStroke();
+  }
+  else if (activeMode === "obstacle") {
+    direction = "right";
+    locationList = [49, 50, 50, 50];
+    x = 50;
+    y = 50;
+    placeholderX = 50;
+    placeholderY = 50;
+    activeMode = "ongoing"
+    appleJustEaten = true;
+    obstacleMode = true;
+    noStroke();
   }
 }
 
@@ -129,6 +161,9 @@ function drawBody() {
 
 function createApple() {
   if (appleJustEaten) {
+    if (obstacleMode) {
+
+    }
     appleX = floor(random(5, windowWidth / 25 - 5)) * 25;
     appleY = floor(random(5, windowHeight / 25 - 5)) * 25;
     for (let i = 0; i < locationList.length; i += 2) {
@@ -169,5 +204,29 @@ function isDead() {
   if (dead) {
     console.log("dead");
     dead = false;
+  }
+}
+
+function mouseWheel(event) {
+  if (event.delta > 0) {
+    scrollMode = 'up';
+  } 
+  else if (event.delta < 0) {
+    scrollMode = "down";
+  }
+  else {
+    scrollMode = "none";
+  }
+}
+
+function scrolling() {
+  if (scrollMode === "down") {
+    scrollingPositionChange -= 2;
+  }
+  if (scrollMode === "up") {
+    scrollingPositionChange += 2;
+  }
+  if (mouseIsPressed) {
+    scrollMode = "none";
   }
 }
