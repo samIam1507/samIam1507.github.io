@@ -55,7 +55,7 @@ function draw() {
 }
 
 function setMode() {
-  if (activeMode === "start" && mouseX > windowWidth / 2 - 20 && mouseX < windowWidth / 2 + 80 && mouseY < windowHeight / 2 - 10 && mouseY > windowHeight / 2 - 30 && mouseIsPressed) {
+  if (activeMode === "start" && mouseX > windowWidth / 2 - 200 && mouseX < windowWidth / 2 + 200 && mouseY < windowHeight / 2 - 50 && mouseY > windowHeight / 2 - 130 && mouseIsPressed) {
     activeMode = "mode-selection";
   }
   if (activeMode === "mode-selection" && mouseX > windowWidth / 2 - 20 && mouseX < windowWidth / 2 + 80 && mouseIsPressed) {
@@ -71,10 +71,11 @@ function setMode() {
 function mode() {
   if (activeMode === "start") {
     fill("red");
-    textSize(22);
-    text("Game Mode Selection", windowWidth / 2 - 20, windowHeight / 2 - 10);
+    textSize(44);
+    strokeWeight(3);
+    text("Game Mode Selection", windowWidth / 2 - 200, windowHeight / 2 - 50);
   }
-  else if (activeMode === "mode-selection") {
+  if (activeMode === "mode-selection") {
     fill("green")
     textSize(30);
     stroke(0);
@@ -85,7 +86,7 @@ function mode() {
     fill("blue");
     text("Basic Mode", windowWidth / 2 - 20, windowHeight + 60 + scrollingPositionChange)
   }
-  else if (activeMode === "play-basic") {
+  if (activeMode === "play-basic") {
     direction = "right";
     locationList = [49, 50, 50, 50];
     x = 50;
@@ -96,7 +97,7 @@ function mode() {
     appleJustEaten = true;
     noStroke();
   }
-  else if (activeMode === "obstacle") {
+  if (activeMode === "obstacle") {
     direction = "right";
     locationList = [49, 50, 50, 50];
     x = 50;
@@ -109,6 +110,11 @@ function mode() {
     obstacleNeeded = true;
     obstacleLocationList = [100, 100, 200, 200];
     noStroke();
+  }
+  if (activeMode === "dead") {
+    locationList = [];
+    x = NaN;
+    y = NaN;
   }
 }
 
@@ -172,7 +178,7 @@ function createApple() {
     }
     appleX = floor(random(5, windowWidth / 25 - 5)) * 25;
     appleY = floor(random(5, windowHeight / 25 - 5)) * 25;
-    for (let i = 0; i < locationList.length; i += 2) {
+    for (let i = 2; i < locationList.length; i += 2) {
       if (appleX === locationList[i] && appleY === locationList[i+1]) {
         overlap = true;
       }
@@ -208,14 +214,21 @@ function recordCoordinates() {
 }
 
 function isDead() {
-  for (let i = 0; i < locationList.length; i += 2) {
+  for (let i = 2; i < locationList.length; i += 2) {
     if (x === locationList[i] && y === locationList[i + 1]){
       dead = true; 
     }
   }
+  for (let n = 0; n < obstacleLocationListLocationList.length; n += 2) {
+    // if (x === obstacleLocationList[n] && y === obstacleLocationList[n + 1]) {
+    //   dead = true;
+    // }
+  }
+  if (x <= 12.5 || x >= windowWidth - 12.5 || y <= 0 || y >= windowHeight - 12.5) {
+    dead = true;
+  }
   if (dead) {
-    console.log("dead");
-    dead = false;
+    activeMode = "dead"
   }
 }
 
