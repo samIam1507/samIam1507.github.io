@@ -12,7 +12,7 @@
 // significant experience with.
 
 
-// defines constants and variables that will be used throughout the project
+// defines constant speed
 const SPEED = 5;
 
 // direction and location variables
@@ -93,7 +93,7 @@ function setMode() {
   }
 
   // defines perameters for beginning switch from mode-selection
-  if (activeMode === "mode-selection" && mouseX > windowWidth / 2.2 && mouseX < windowWidth / 1.8 && mouseIsPressed) {
+  if (activeMode === "mode-selection" && mouseX > windowWidth / 2.4 && mouseX < windowWidth / 1.6 && mouseIsPressed) {
     
     // defines perameters for switching mode to play-basic
     if (mouseY < 3 * windowHeight / 1.9 + scrollingPositionChange && mouseY > 3 * windowHeight / 2.1 + scrollingPositionChange) {
@@ -194,6 +194,9 @@ function mode() {
     if (millis() > millisDeathRecorded + millisDeathDelay) {
       activeMode = "start";
     }
+
+    // draws home logo in upper right corner
+    image(home, windowWidth / 15, windowHeight / 15, windowWidth / 7.5, windowWidth / 7.5);
   }
   else if (activeMode === "ongoing") {
 
