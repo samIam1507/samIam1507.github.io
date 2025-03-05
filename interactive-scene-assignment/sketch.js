@@ -263,7 +263,7 @@ function drawBody() {
   // fills green then iterates through locationList to draw the body, slowly darkening the colour
   fill(0, 255, 0);
   for (let i = 0; i < locationList.length; i += 2) {
-    fill(0, 255 - 2 * i, 0);
+    fill(0, 255 - i, 0);
     circle(locationList[i], locationList[i + 1], 25);
   }
 }
