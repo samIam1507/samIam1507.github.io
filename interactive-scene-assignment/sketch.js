@@ -33,16 +33,21 @@ let millisDeathRecorded = 0;
 
 function preload() {
   setting = loadImage("setting_button.png");
+  home = loadImage("home.png");
+  play = loadImage("play.png");
+  playTitle = loadImage("play_title.png");
+  instructions = loadImage("instruction.png");
 }
+
 function setup() {
   createCanvas(windowWidth, windowHeight);
   dx = speed;
   noStroke();
+  imageMode(CENTER);
 }
 
 function draw() {
   background(220);
-  image(setting, 50, 50);
   setMode();
   mode();
   fill(40, 40, 130);
@@ -57,7 +62,7 @@ function draw() {
 }
 
 function setMode() {
-  if (activeMode === "start" && mouseX > windowWidth / 2 - 200 && mouseX < windowWidth / 2 + 200 && mouseY < windowHeight / 2 - 50 && mouseY > windowHeight / 2 - 130 && mouseIsPressed) {
+  if (activeMode === "start" && mouseX > windowWidth / 2.5 && mouseX < windowWidth / 1.7 && mouseY < windowHeight / 1.1 && mouseY > windowHeight / 1.3 && mouseIsPressed) {
     activeMode = "mode-selection";
   }
   if (activeMode === "mode-selection" && mouseX > windowWidth / 2 - 20 && mouseX < windowWidth / 2 + 80 && mouseIsPressed) {
@@ -72,23 +77,30 @@ function setMode() {
 
 function mode() {
   if (activeMode === "start") {
-    fill("red");
-    textSize(44);
-    strokeWeight(3);
-    text("Game Mode Selection", windowWidth / 2 - 200, windowHeight / 2 - 50);
+    background(23, 93, 160);
+    if (windowWidth > windowHeight) {
+      image(home, windowWidth / 2, windowHeight / 2, windowHeight, windowHeight);
+      image(play, windowWidth / 2, windowHeight / 1.2, windowWidth / 3, windowWidth / 3);
+    }
+    else {
+      image(home, windowWidth / 2, windowHeight / 2, windowWidth, windowWidth);
+      image(play, windowWidth / 2, windowHeight / 1.2, windowWidth / 3, windowWidth / 3);
+    }
+
   }
   else if (activeMode === "mode-selection") {
-    fill("green");
-    textSize(30);
-    stroke(0);
-    strokeWeight(4);
-    text("(Scroll for More Options, Clic to Stop Scrolling)", windowWidth / 2 - 200, windowHeight / 4);
-    fill("yellow");
-    text("Obstacle Mode", windowWidth / 2 - 20, windowHeight + scrollingPositionChange);
-    fill("blue");
-    text("Basic Mode", windowWidth / 2 - 20, windowHeight + 60 + scrollingPositionChange);
+    background(23, 93, 160);
+    image(home, windowWidth / 10, windowHeight / 10, windowWidth / 5, windowWidth / 5);
+    if (windowWidth > windowHeight) {
+      image(playTitle, windowWidth / 2, windowHeight / 3, windowWidth / 4, windowWidth / 4);
+      image(instructions, windowWidth / 2, windowHeight / 1.5, windowWidth / 4, windowWidth / 4);
+    }
+    else {
+      image(playTitle, windowWidth / 2, windowHeight / 3, windowWidth / 4, windowWidth / 4);
+      image(instructions, windowWidth / 2, windowHeight / 1.5, windowWidth / 3, windowWidth / 3);
+    }
   }
-  else if (activeMode === "play-basic") {
+  if (activeMode === "play-basic") {
     direction = "right";
     locationList = [49, 50, 50, 50];
     x = 50;
@@ -249,13 +261,10 @@ function isDead() {
 
 function mouseWheel(event) {
   if (event.delta > 0) {
-    scrollMode = 'up';
+    scrollMode = 'down';
   } 
-  else if (event.delta < 0) {
-    scrollMode = "down";
-  }
-  else {
-    scrollMode = "none";
+  if (event.delta < 0) {
+    scrollMode = "up";
   }
 }
 
