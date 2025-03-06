@@ -4,6 +4,7 @@ let ballArray = [];
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
+  noStroke();
 }
 
 function draw() {
@@ -15,17 +16,17 @@ function draw() {
     fill("red");
     ball.x += ball.dx;
     ball.y += ball.dy;
-    if (ball.x - ball.radius < 0) {
-      ball.x = width;
+    if (ball.x + ball.radius < 0) {
+      ball.x = width + ball.radius;
     }
-    else if (ball.x + ball.radius > width) {
-      ball.x = 0;
+    else if (ball.x - ball.radius > width) {
+      ball.x = 0 - ball.radius;
     }
-    if (ball.y - ball.radius < 0) {
-      ball.y = height;
+    if (ball.y + ball.radius < 0) {
+      ball.y = height + ball.radius;
     }
-    else if (ball.y + ball.radius > height) {
-      ball.y = 0;
+    else if (ball.y - ball.radius > height) {
+      ball.y = 0 - ball.radius;
     }
     circle(ball.x, ball.y, ball.radius * 2);
   }
