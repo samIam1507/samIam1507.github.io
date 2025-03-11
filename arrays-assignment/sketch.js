@@ -4,8 +4,8 @@
 //
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
-let tileAmountX = 10;
-let tileAmountY = 10;
+let tileAmountX = 50;
+let tileAmountY = 50;
 let theTile = {
 };
 let choice;
@@ -50,20 +50,22 @@ function createSquares() {
       }
     }
   }
+  console.log(safeLocationPlaceholder);
 }
 
-function isBombTouching() {
-  for (let i = safeLocationPlaceholder.length; i > 0; i--) {
-    safeSquare = safeLocationPlaceholder[i];
-    for (let bombSquare of bombLocationsArray) {
-      if (Math.abs(safeLocationPlaceholder[i].squareX - bombSquare.squareX) <= 50 && Math.abs(safeLocationPlaceholder[i].squareY - bombSquare.squareY) <= 50) {
-        bombSquare.bombsTouching ++;
-      }
-    }
-    safeLocationArray.push(bombSquare);
-  }
-  console.log(safeLocationArray);
-}
+
+// function isBombTouching() {
+//   for (let i = safeLocationPlaceholder.length; i > 0; i--) {
+//     safeSquare = safeLocationPlaceholder[i];
+//     for (let bombSquare of bombLocationsArray) {
+//       if (Math.abs(safeSquare.squareX - bombSquare.squareX) <= 50 && Math.abs(safeSquare.squareY - bombSquare.squareY) <= 50) {
+//         bombSquare.bombsTouching ++;
+//       }
+//     }
+//     safeLocationArray.push(bombSquare);
+//   }
+//   console.log(safeLocationArray);
+// }
 
 // note to future sam - iterate all with x change perameters to see if toucing then chekc if there is a bomb to determine number_touching
 
