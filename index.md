@@ -7,4 +7,5 @@
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene-assignment)
-- [Arrays and Object Notation Assignment](arrays-assignment)
+- [Arrays and Object Notation Assignment](arrays-assignment-original)
+- [Arrays and Object Notation Assignment 2 - Electric Bugaloo](arrays-assignment-two)
