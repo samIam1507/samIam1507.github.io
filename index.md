@@ -6,3 +6,4 @@
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene-assignment)
+- [Arrays and Object Notation Assignment](arrays-assignment)

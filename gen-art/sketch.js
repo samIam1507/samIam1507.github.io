@@ -15,7 +15,6 @@ function setup() {
       newLine = spawnLine(i, y, width / 50);
       someLine.push(newLine);
     }
-
   }
 }
 
