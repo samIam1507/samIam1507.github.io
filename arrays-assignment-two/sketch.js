@@ -17,6 +17,10 @@ let playerOne = {
   cards: [],
   name: "sam",
 };
+let computerPlayer = {
+  cards: [],
+  name : "theEnemy",
+};
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -24,8 +28,10 @@ function setup() {
   shuffleDeck();
   console.log(deckArray);
   playersArray.push(playerOne);
+  playersArray.push(computerPlayer);
   dealTheCards();
   console.log(playerOne);
+  console.log(computerPlayer);
 }
 
 function draw() {
@@ -89,3 +95,45 @@ function dealRiver() {
   river = newCard;
   boardArray.push(newCard);
 }
+
+function assessComputerHandStrength() {
+  let points = 0;
+  let cardA = computerPlayer.cards[i].number;
+  let cardB = computerPlayer.cards[i + 1].number;
+  let cardASuit = computerPlayer.cards[i].suit;
+  let cardBSuit = computerPlayer.cards[i + 1].suit;
+  if (cardA > 11 || cardB > 11) {
+    if (cardA === cardB) {
+      points += 4;
+    }
+    else if (cardA > 11 && cardB > 11) {
+      points += 2;
+    }
+    else {
+      points += 1;
+    }
+  }
+  if (cardA === 1 || cardB === 1) {
+    if (cardA === cardB) {
+      points += 6;
+    }
+    else if (cardA > 11 || cardB > 11) {
+      points += 3;
+    }
+    else {
+      points += 1;
+    }
+  }
+  if (Math.abs(cardA - cardB) < 3) {
+    if (cardA === cardB) {
+      points += 2;
+    }
+    else {
+      points += 1;
+    }
+  }
+  if (cardASuit === cardBSuit) {
+    points += 2;
+  }
+}
+
