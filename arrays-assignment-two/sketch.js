@@ -16,11 +16,17 @@ let playersArrayPlaceholder = [];
 let playerOne = {
   cards: [],
   name: "sam",
+  stack: 100,
 };
 let computerPlayer = {
   cards: [],
   name : "theEnemy",
+  stack: 100,
 };
+let confidence;
+let points;
+let pot;
+let currentBet;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -97,16 +103,16 @@ function dealRiver() {
 }
 
 function assessComputerHandStrength() {
-  let points = 0;
+  points = 0;
   let cardA = computerPlayer.cards[i].number;
   let cardB = computerPlayer.cards[i + 1].number;
   let cardASuit = computerPlayer.cards[i].suit;
   let cardBSuit = computerPlayer.cards[i + 1].suit;
-  if (cardA > 11 || cardB > 11) {
+  if (cardA > 10 || cardB > 10) {
     if (cardA === cardB) {
       points += 4;
     }
-    else if (cardA > 11 && cardB > 11) {
+    else if (cardA > 10 && cardB > 10) {
       points += 2;
     }
     else {
@@ -117,11 +123,11 @@ function assessComputerHandStrength() {
     if (cardA === cardB) {
       points += 6;
     }
-    else if (cardA > 11 || cardB > 11) {
+    else if (cardA > 10 || cardB > 10) {
       points += 3;
     }
     else {
-      points += 1;
+      points += 2;
     }
   }
   if (Math.abs(cardA - cardB) < 3) {
@@ -135,5 +141,31 @@ function assessComputerHandStrength() {
   if (cardASuit === cardBSuit) {
     points += 2;
   }
+  return points;
 }
 
+function determineComputerBetting() {
+  confidence = random(Math.abs(points - 3, points));
+  if (playerBetsFirst) {
+    if (playerBet > computerPlayer.stack / 7.5) {
+      if (confidence > 3) {
+        calls(computerPlayer);
+      }
+      else {
+        foldsTo(playerOne);
+      }
+    }
+  }
+}
+
+function calls(playerChosen) {
+  playerChosen.stack -= currentBet;
+  pot += 2 * currentBet;
+  currentBet = 0;
+}
+
+function foldsTo(playerChosen) {
+  pot += currentBet;
+  currentBet = 0;
+  playerChosen.stack += pot;
+}
