@@ -146,8 +146,8 @@ function assessComputerHandStrength() {
 
 function determineComputerBetting() {
   confidence = random(Math.abs(points - 3, points));
-  if (playerBetsFirst) {
-    if (playerBet > computerPlayer.stack / 7.5) {
+  if (currentBet !== 0) {
+    if (currentBet > computerPlayer.stack / 7.5) {
       if (confidence > 3) {
         calls(computerPlayer);
       }
@@ -155,9 +155,21 @@ function determineComputerBetting() {
         foldsTo(playerOne);
       }
       if (confidence > 6) {
-        bet(computerPlayer, Math.floor(random(3, 5)));
+        bet(computerPlayer, random(4, 6));
       }
     }
+  }
+  else if (confidence > 5) {
+    bet(computerPlayer, random(3, 5));
+  }
+  else if (confidence > 3) {
+    bet(computerPlayer, random(2));
+  }
+}
+
+function playerBet() {
+  if (currentBet !== 0) {
+    
   }
 }
 
@@ -174,5 +186,12 @@ function foldsTo(playerChosen) {
 }
 
 function bet(playerChosen, betValue) {
-
+  currentBet = playerChosen.stack / (Math.floor(20 / betValue));
+  if (currentBet > playerChosen.stack) {
+    currentBet = playerChosen.stack;
+    playerChosen.stack = 0;
+  }
+  else {
+    playerChosen.stack -= currentBet;
+  }
 }
