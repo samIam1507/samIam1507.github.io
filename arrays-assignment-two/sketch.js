@@ -154,6 +154,9 @@ function determineComputerBetting() {
       else {
         foldsTo(playerOne);
       }
+      if (confidence > 6) {
+        bet(computerPlayer, Math.floor(random(3, 5)));
+      }
     }
   }
 }
@@ -168,4 +171,8 @@ function foldsTo(playerChosen) {
   pot += currentBet;
   currentBet = 0;
   playerChosen.stack += pot;
+}
+
+function bet(playerChosen, betValue) {
+
 }

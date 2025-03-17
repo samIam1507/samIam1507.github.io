@@ -5,6 +5,7 @@
 - [Generative Art](gen-art)
 - [Perlin Noise Demo](perlin-noise-demo)
 - [Terain Demonstration](terain-demo)
+- [Bubble Object Notation](bubbles-demo)
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene-assignment)
