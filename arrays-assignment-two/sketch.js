@@ -86,18 +86,24 @@ function modeFeatures() {
     else if (counter === 2) {
       currentMode = "turn";
     }
-    else {
+    else if (counter ===3) {
       currentMode = "river";
+    }
+    else {
+      currentMode === "payout";
     }
   }
   else if (currentMode === "flop") {
-    
+    dealFlop();
+    currentMode === "betting";
   }
   else if (currentMode === "turn") {
-    
+    dealTurn();
+    currentMode === "betting";
   }
   else if (currentMode === "river") {
-    
+    dealRiver();
+    currentMode === "betting";
   }
   else if (currentMode === "payout") {
     
@@ -122,7 +128,7 @@ function createDeck() {
     suit: 1,
   };
   for (let cardNumber = 1; cardNumber < 14; cardNumber++) {
-    for (let cardSuit = 1; cardSuit < 5; cardSuit ++) {
+    for (let cardSuit = 0; cardSuit < 4; cardSuit ++) {
       card = {
         number: cardNumber,
         suit: cardSuit,
@@ -319,6 +325,55 @@ function foldDisplay() {
     rect(6 * width / 7, 6 * height / 7, width, height / 7);
     if (mouseIsPressed && mouseX > 6 * width / 7 && mouseX < width && mouseY > 6 * height / 7 && mouseY < height) {
       foldsTo(computerPlayer);
+    }
+  }
+}
+
+// fix logic of input lol
+function determineWinner(cardsArrayTotal, cardsArrayIndividual) {
+  let playerScore = 0;
+  let computerScore = 0;
+  let playerTotalCards = concat(boardArray, playerOne.cards);
+  let computerTotalCards = concat(boardArray, computerPlayer.cards);
+  let suitCounter = 0;
+  let sameCardCounter = 0;
+  let playerFlushHighCard;
+  let computerFlushHighCard;
+  let playerQuads = false;
+  let computerQuads = false;
+  let playerTrips = false;
+  let playerTripsNumber;
+  let computerTrips = false;
+  let computerTripsNumber;
+  let playerPair = 0;
+  let playerPairNumber;
+  let computerPair = 0;
+  let computerPairNumber;
+  for (let card of cardsArray) {
+    for (let n = 0; n < 7; n ++) {
+      if (playerTotalCards[n].number === card.number) {
+        sameCardCounter += 1;
+      }
+      if (sameCardCounter === 4) {
+        return 8;
+      }
+
+    }
+    for (let i = 0; i < 4; i ++) {
+      if (card.suit === i) {
+        counter += 1;
+        if (counter > 4 && playerScore === 0) {
+          playerScore = 6;
+          if (cardsArrayIndividual.card[0].suit === i && cardsArrayIndividual.card[2].suit === i) {
+            if (cardsArrayIndividual.card[0].number > cardsArrayIndividual.card[1].number) {
+              playerFlushHighCard = playerOne.card[0].number;
+            }
+            else {
+              playerFlushHighCard = playerOne.card[1].number;
+            }
+          }
+        }
+      }
     }
   }
 }
