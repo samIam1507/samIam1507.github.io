@@ -331,49 +331,75 @@ function foldDisplay() {
 
 // fix logic of input lol
 function determineWinner(cardsArrayTotal, cardsArrayIndividual) {
-  let playerScore = 0;
-  let computerScore = 0;
-  let playerTotalCards = concat(boardArray, playerOne.cards);
-  let computerTotalCards = concat(boardArray, computerPlayer.cards);
-  let suitCounter = 0;
   let sameCardCounter = 0;
   let playerFlushHighCard;
-  let computerFlushHighCard;
-  let playerQuads = false;
-  let computerQuads = false;
-  let playerTrips = false;
-  let playerTripsNumber;
-  let computerTrips = false;
-  let computerTripsNumber;
-  let playerPair = 0;
-  let playerPairNumber;
-  let computerPair = 0;
-  let computerPairNumber;
-  for (let card of cardsArray) {
+  let pairTotal = 0;
+  let pairNumber = 0;
+  let tripsNumber = 0;
+
+  for (let card of cardsArrayTotal) {
     for (let n = 0; n < 7; n ++) {
-      if (playerTotalCards[n].number === card.number) {
+      if (cardsArrayTotal[n].number === card.number) {
         sameCardCounter += 1;
       }
-      if (sameCardCounter === 4) {
-        return 8;
-      }
-
     }
+    if (sameCardCounter === 4) {
+      return [8, card.number];
+    }
+    if (counter === 3) {
+      tripsNumber = card.number;
+    }
+    if (counter === 2) {
+      if (!(pairTotal > 0 && card.number > pairNumber)) {
+        pairNumber = card.number;
+      }
+      pairTotal += 1;
+    }
+  }
+  if (counter === 3) {
+    if (pairTotal > 0) {
+      return [7, tripsNumber];
+    }
+    else {
+      trips = true;
+    }
+  }
+  for (card of cardsArrayTotal) {
     for (let i = 0; i < 4; i ++) {
+      counter = 0;
       if (card.suit === i) {
         counter += 1;
-        if (counter > 4 && playerScore === 0) {
-          playerScore = 6;
+        if (counter > 4) {
           if (cardsArrayIndividual.card[0].suit === i && cardsArrayIndividual.card[2].suit === i) {
             if (cardsArrayIndividual.card[0].number > cardsArrayIndividual.card[1].number) {
-              playerFlushHighCard = playerOne.card[0].number;
+              playerFlushHighCard = cardsArrayIndividual.card[0].number;
             }
             else {
-              playerFlushHighCard = playerOne.card[1].number;
+              playerFlushHighCard = cardsArrayIndividual.card[1].number;
             }
           }
+          return [6, playerFlushHighCard];
         }
       }
     }
+  }
+  cardsArrayTotal.sort((a, b) => a.number - b.number);
+  cardsArrayIndividual.sort((a, b) => a.number - b.number);
+  for (i = 0; i < 3; i ++) {
+    if (cardsArrayTotal[i].number === cardsArrayTotal[i + 1].number - 1 === cardsArrayTotal[i + 2].number - 2 === cardsArrayTotal[i + 3].number - 3 === cardsArrayTotal[i + 4].number - 4) {
+      return [5, cardsArrayTotal[i + 4].number];
+    }
+  }
+  if (trips) {
+    return [4, tripsNumber];
+  }
+  else if (pairTotal > 1) {
+    return [3, pairNumber];
+  }
+  else if (pairTotal === 1) {
+    return [2, pairNumber];
+  }
+  else {
+    return [1, cardsArrayIndividual[1].number];
   }
 }
