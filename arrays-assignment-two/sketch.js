@@ -27,6 +27,13 @@ let confidence;
 let points;
 let pot;
 let currentBet;
+let currentMode;
+let checkOption = false;
+let foldOption = false;
+let callOption = false;
+let raiseOption = false;
+let dealingCounter = 0;
+let playerBetsFirst = true;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -44,6 +51,69 @@ function draw() {
   background(220);
   // dealTheCards();
   // console.log(playerOne);
+}
+
+function modeFeatures() {
+  if (currentMode === "homescreen") {
+
+  }
+  else if (currentMode === "dealTheCards") {
+    createDeck();
+    shuffleDeck();
+    dealTheCards();
+  }
+  else if (currentMode === "betting") {
+    if (playerBetsFirst) {
+      playerBet();
+      assessComputerHandStrength();
+      determineComputerBetting();
+    }
+    else {
+      assessComputerHandStrength();
+      determineComputerBetting();
+      playerBet();
+    }
+    if (!raise) {
+      raise = true;
+      currentMode = "dealerAction";
+    }
+  }
+  else if (currentMode === "dealerAction"){
+    counter += 1;
+    if (counter === 1) {
+      currentMode = "flop";
+    }
+    else if (counter === 2) {
+      currentMode = "turn";
+    }
+    else {
+      currentMode = "river";
+    }
+  }
+  else if (currentMode === "flop") {
+    
+  }
+  else if (currentMode === "turn") {
+    
+  }
+  else if (currentMode === "river") {
+    
+  }
+  else if (currentMode === "payout") {
+    
+  }
+  else if (currentMode === "pause") {
+
+  }
+  else if (currentMode === "rules") {
+    
+  }
+  else if (currentMode === "playerRaising") {
+
+  }
+  else {
+
+  }
 }
 
 function createDeck() {
@@ -150,9 +220,11 @@ function determineComputerBetting() {
     if (currentBet > computerPlayer.stack / 7.5) {
       if (confidence > 3) {
         calls(computerPlayer);
+        raise = false;
       }
       else {
         foldsTo(playerOne);
+        raise = false;
       }
       if (confidence > 6) {
         bet(computerPlayer, random(4, 6));
@@ -165,11 +237,20 @@ function determineComputerBetting() {
   else if (confidence > 3) {
     bet(computerPlayer, random(2));
   }
+  else {
+    raise = false;
+  }
 }
 
 function playerBet() {
   if (currentBet !== 0) {
-    
+    checkOption = true;
+    raiseOption = true;
+  }
+  else {
+    callOption = true;
+    raiseOption = true;
+    foldOption = true;
   }
 }
 
@@ -186,12 +267,58 @@ function foldsTo(playerChosen) {
 }
 
 function bet(playerChosen, betValue) {
-  currentBet = playerChosen.stack / (Math.floor(20 / betValue));
+  currentBet = playerChosen.stack / Math.floor(20 / betValue);
   if (currentBet > playerChosen.stack) {
     currentBet = playerChosen.stack;
     playerChosen.stack = 0;
   }
   else {
     playerChosen.stack -= currentBet;
+  }
+}
+
+function checkDisplay() {
+  fill("black");
+  rect(5 * width / 7, 5 * height / 7, width / 7, height / 7);
+  if (mouseIsPressed && mouseX > 5 * width / 7 && mouseX < 6 * width / 7 && mouseY > 5 * height / 7 && mouseY < 6 * height / 7) {
+    currentMode = "dealerAction";
+  }
+}
+
+function raiseOptionDisplay() {
+  if (raiseOption) {
+    playerOne.stack -= currentBet;
+    currentBet = 2 * currentBet;
+    pot += currentBet;
+    currentBet = 0;
+    fill("red");
+    rect(6 * width / 7, 5 * height / 7, width / 7, height / 7);
+    if (mouseIsPressed && mouseX > 6 * width / 7 && mouseX < width && mouseY > 5 * height / 7 && mouseY < 6 * height / 7) {
+      currentMode = "playerRaising";
+    }
+  }
+}
+
+function callDisplay() {
+  if (callOption) {
+    fill("green");
+    rect(5 * width / 7, 6 * height / 7, width / 7, height / 7);
+    if (mouseIsPressed && mouseX > 5 * width / 7 && mouseX < 6 * width / 7 && mouseY > 6 * height / 7 && mouseY < height) {
+      playerOne.stack -= currentBet;
+      currentBet = 2 * currentBet;
+      pot += currentBet;
+      currentBet = 0;
+      currentMode = "dealerAction";
+    }
+  }
+}
+
+function foldDisplay() {
+  if (foldOption) {
+    fill("blue");
+    rect(6 * width / 7, 6 * height / 7, width, height / 7);
+    if (mouseIsPressed && mouseX > 6 * width / 7 && mouseX < width && mouseY > 6 * height / 7 && mouseY < height) {
+      foldsTo(computerPlayer);
+    }
   }
 }
