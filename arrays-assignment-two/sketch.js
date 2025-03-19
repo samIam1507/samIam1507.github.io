@@ -72,7 +72,6 @@ function modeFeatures() {
 
   if (currentMode === "betting") {
     points = 0;
-    console.log(computerBet);
     if (!allIn) {
       if (!computerBet) {
         if (counter === 0) {
@@ -80,7 +79,8 @@ function modeFeatures() {
         }
         else {
           let meritPoints = determineWinner(boardArray, computerPlayer.cards);
-          points = meritPoints[0] + assessComputerHandStrength / 3;
+          assessComputerHandStrength();
+          points = points / 3 + meritPoints;
         }
         determineComputerBetting();
         computerBet = true;
@@ -102,8 +102,6 @@ function modeFeatures() {
   }
 
   if (currentMode === "playerBet") {
-    console.log(currentBet);
-    console.log("hi");
     playerBet();
   }
 
@@ -122,6 +120,7 @@ function modeFeatures() {
     else {
       currentMode === "payout";
     }
+    raise = true;
   }
 
   if (currentMode === "flop") {
@@ -143,6 +142,7 @@ function modeFeatures() {
   }
 
   if (currentMode === "payout") {
+    console.log("ho");
     playerScore = determineWinner(concat(boardArray, playerOne.cards), playerOne.cards);
     computerScore = determineWinner(concat(boardArray, computerPlayer.cards), computerPlayer.cards);
     if (playerScore[0] > computerScore[0]) {
@@ -463,8 +463,8 @@ function determineWinner(boardCardsArray, cardsArrayIndividual) {
       if (card.suit === i) {
         sameSuitCounter += 1;
         if (sameSuitCounter > 4) {
-          if (cardsArrayIndividual.card[0].suit === i && cardsArrayIndividual.card[2].suit === i) {
-            if (cardsArrayIndividual.card[0].number > cardsArrayIndividual.card[1].number) {
+          if (cardsArrayIndividual.cards[0].suit === i && cardsArrayIndividual.cards[1].suit === i) {
+            if (cardsArrayIndividual.cards[0].number > cardsArrayIndividual.cards[1].number) {
               playerFlushHighCard = cardsArrayIndividual.card[0].number;
             }
             else {
