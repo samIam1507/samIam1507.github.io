@@ -38,6 +38,7 @@ let counter = 0;
 let allIn = false;
 let computerBet = false;
 let raise = true;
+let timeDifference = 500;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -48,8 +49,6 @@ function setup() {
 
 function draw() {
   background("green");
-  // dealTheCards();
-  // console.log(playerOne);
   modeFeatures();
 }
 
@@ -59,7 +58,6 @@ function modeFeatures() {
   }
 
   if (currentMode === "dealTheCards") {
-    console.log("hi");
     createDeck();
     shuffleDeck();
     dealTheCards();
@@ -68,28 +66,30 @@ function modeFeatures() {
     console.log(computerPlayer);
     currentMode = "betting";
     counter = 0;
+    raise = true;
   }
 
   if (currentMode === "betting") {
+    console.log(raise + " raise?");
     points = 0;
+    raise = true;
     if (!allIn) {
       if (!computerBet) {
         if (counter === 0) {
           assessComputerHandStrength();
         }
         else {
-          let meritPoints = determineWinner(boardArray, computerPlayer.cards);
+          let meritPoints = determineWinner(boardArray, computerPlayer.cards)[0];
+          console.log(meritPoints + " merit points");
           assessComputerHandStrength();
           points = points / 3 + meritPoints;
         }
         determineComputerBetting();
         computerBet = true;
-        console.log(points);
-        raise = true;
+        console.log(points + " computer points");
       }
       else {
         currentMode = "playerBet";
-        computerBet = false;
       }
       if (!raise) {
         raise = true;
@@ -102,23 +102,26 @@ function modeFeatures() {
   }
 
   if (currentMode === "playerBet") {
+    console.log("player bets");
     playerBet();
   }
 
   if (currentMode === "dealerAction"){
-    console.log("perp");
+    console.log("dealer Action");
+    console.log(boardArray);
     counter += 1;
+    console.log(counter);
     if (counter === 1) {
       currentMode = "flop";
     }
     else if (counter === 2) {
       currentMode = "turn";
     }
-    else if (counter ===3) {
+    else if (counter === 3) {
       currentMode = "river";
     }
     else {
-      currentMode === "payout";
+      currentMode = "payout";
     }
     raise = true;
   }
@@ -142,9 +145,9 @@ function modeFeatures() {
   }
 
   if (currentMode === "payout") {
-    console.log("ho");
-    playerScore = determineWinner(concat(boardArray, playerOne.cards), playerOne.cards);
-    computerScore = determineWinner(concat(boardArray, computerPlayer.cards), computerPlayer.cards);
+    console.log("payout");
+    playerScore = determineWinner(boardArray, playerOne.cards);
+    computerScore = determineWinner(boardArray, computerPlayer.cards);
     if (playerScore[0] > computerScore[0]) {
       foldsTo(playerOne);
     }
@@ -174,7 +177,7 @@ function modeFeatures() {
   }
 
   if (currentMode === "playerRaising") {
-    console.log("raising");
+    console.log("player raising");
     fill("blue");
     square(100, 100, 100);
     if (mouseIsPressed && mouseX > 100 && mouseX < 200 && mouseY > 100 && mouseY < 200) {
@@ -313,7 +316,6 @@ function determineComputerBetting() {
     bet(computerPlayer, random(3, 5));
   }
   else if (confidence > 3) {
-    console.log("bigger than 3");
     bet(computerPlayer, random(2));
   }
   else {
@@ -350,8 +352,8 @@ function foldsTo(playerChosen) {
   currentBet = 0;
   playerChosen.stack += pot;
   pot = 0;
-  console.log(playerChosen.stack);
-  console.log(playerChosen);
+  console.log(playerChosen.stack + " stack of winner (after fold)");
+  console.log(playerChosen + " winner");
   currentMode = "dealTheCards";
 }
 
@@ -363,7 +365,7 @@ function bet(playerChosen, betValue) {
   }
   else {
     playerChosen.stack -= currentBet;
-    console.log(currentBet);
+    console.log(currentBet + ' current bet and ' + playerChosen);
   }
 }
 
@@ -372,6 +374,7 @@ function checkDisplay() {
   rect(5 * width / 7, 5 * height / 7, width / 7, height / 7);
   if (mouseIsPressed && mouseX > 5 * width / 7 && mouseX < 6 * width / 7 && mouseY > 5 * height / 7 && mouseY < 6 * height / 7) {
     currentMode = "dealerAction";
+    console.log("check");
   }
 }
 
@@ -418,7 +421,7 @@ function foldDisplay() {
 
 function determineWinner(boardCardsArray, cardsArrayIndividual) {
   let sameCardCounter = 0;
-  let playerFlushHighCard;
+  let playerFlushHighCard = 0;
   let pairTotal = 0;
   let pairNumber = 0;
   let tripsNumber = 0;
@@ -429,7 +432,7 @@ function determineWinner(boardCardsArray, cardsArrayIndividual) {
     cardsArrayTotal.push(cardsArrayIndividual[i]);
   }
 
-  console.log("determiningWinner");
+  console.log("determining winner");
 
   for (let card of cardsArrayTotal) {
     for (let n = 0; n < cardsArrayTotal.length; n ++) {
@@ -463,23 +466,23 @@ function determineWinner(boardCardsArray, cardsArrayIndividual) {
       if (card.suit === i) {
         sameSuitCounter += 1;
         if (sameSuitCounter > 4) {
-          if (cardsArrayIndividual.cards[0].suit === i && cardsArrayIndividual.cards[1].suit === i) {
-            if (cardsArrayIndividual.cards[0].number > cardsArrayIndividual.cards[1].number) {
-              playerFlushHighCard = cardsArrayIndividual.card[0].number;
-            }
-            else {
-              playerFlushHighCard = cardsArrayIndividual.card[1].number;
-            }
-          }
-          else if (cardsArrayIndividual.card[0].suit === i) {
-            playerFlushHighCard = cardsArrayIndividual.card[0].number;
-          }
-          else if (cardsArrayIndividual.card[1].suit === i) {
-            playerFlushHighCard = cardsArrayIndividual.card[1].number;
-          }
-          else {
-            playerFlushHighCard = 0;
-          }
+          // if (cardsArrayIndividual.cards[0].suit === i && cardsArrayIndividual.cards[1].suit === i) {
+          //   if (cardsArrayIndividual.cards[0].number > cardsArrayIndividual.cards[1].number) {
+          //     playerFlushHighCard = cardsArrayIndividual.card[0].number;
+          //   }
+          //   else {
+          //     playerFlushHighCard = cardsArrayIndividual.card[1].number;
+          //   }
+          // }
+          // else if (cardsArrayIndividual.card[0].suit === i) {
+          //   playerFlushHighCard = cardsArrayIndividual.card[0].number;
+          // }
+          // else if (cardsArrayIndividual.card[1].suit === i) {
+          //   playerFlushHighCard = cardsArrayIndividual.card[1].number;
+          // }
+          // else {
+          //   playerFlushHighCard = 0;
+          // }
           return [6, playerFlushHighCard];
         }
       }
@@ -505,3 +508,4 @@ function determineWinner(boardCardsArray, cardsArrayIndividual) {
     return [1, cardsArrayIndividual[1].number];
   }
 }
+
