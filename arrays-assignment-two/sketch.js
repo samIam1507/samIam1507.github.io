@@ -26,10 +26,6 @@ let points;
 let pot = 0;
 let currentBet = 0;
 let currentMode;
-let checkOption = false;
-let foldOption = false;
-let callOption = false;
-let raiseOption = false;
 let dealingCounter = 0;
 let playerBetsFirst = true;
 let playerScore;
@@ -39,6 +35,7 @@ let allIn = false;
 let computerBet = false;
 let raise = true;
 let timeDifference = 500;
+let checkOption;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -53,9 +50,6 @@ function draw() {
 }
 
 function modeFeatures() {
-  if (currentMode === "homescreen") {
-
-  }
 
   if (currentMode === "dealTheCards") {
     createDeck();
@@ -67,6 +61,7 @@ function modeFeatures() {
     currentMode = "betting";
     counter = 0;
     raise = true;
+    boardArray = [];
   }
 
   if (currentMode === "betting") {
@@ -124,6 +119,7 @@ function modeFeatures() {
       currentMode = "payout";
     }
     raise = true;
+    computerBet = false;
   }
 
   if (currentMode === "flop") {
@@ -312,24 +308,22 @@ function determineComputerBetting() {
       }
     }
   }
-  else if (confidence > 5) {
+  else if (confidence > 7) {
     bet(computerPlayer, random(3, 5));
   }
-  else if (confidence > 3) {
+  else if (confidence > 5) {
     bet(computerPlayer, random(2));
   }
   else {
     if (bluff > 85) {
       bet(computerPlayer, random(2, 6));
     }
-    else {
-      raise = false;
-    }
   }
 }
 
 function playerBet() {
   if (currentBet === 0) {
+    checkOption = true;
     checkDisplay();
     raiseOptionDisplay();
   }
@@ -345,6 +339,7 @@ function calls(playerChosen) {
   pot += 2 * currentBet;
   currentBet = 0;
   raise = false;
+  currentMode = "dealerAction";
 }
 
 function foldsTo(playerChosen) {
@@ -370,11 +365,14 @@ function bet(playerChosen, betValue) {
 }
 
 function checkDisplay() {
-  fill("black");
-  rect(5 * width / 7, 5 * height / 7, width / 7, height / 7);
-  if (mouseIsPressed && mouseX > 5 * width / 7 && mouseX < 6 * width / 7 && mouseY > 5 * height / 7 && mouseY < 6 * height / 7) {
-    currentMode = "dealerAction";
-    console.log("check");
+  if (checkOption) {
+    fill("black");
+    rect(5 * width / 7, 5 * height / 7, width / 7, height / 7);
+    if (mouseIsPressed && mouseX > 5 * width / 7 && mouseX < 6 * width / 7 && mouseY > 5 * height / 7 && mouseY < 6 * height / 7) {
+      currentMode = "dealerAction";
+      console.log("check");
+      checkOption = false;
+    }
   }
 }
 
@@ -403,11 +401,7 @@ function callDisplay() {
   fill("yellow");
   rect(6 * width / 7, 6 * height / 7, width / 7, height / 7);
   if (mouseIsPressed && mouseX > 6 * width / 7 && mouseX < width && mouseY > 6 * height / 7 && mouseY < height) {
-    playerOne.stack -= currentBet;
-    currentBet = 2 * currentBet;
-    pot += currentBet;
-    currentBet = 0;
-    currentMode = "dealerAction";
+    calls(playerOne);
   }
 }
 
