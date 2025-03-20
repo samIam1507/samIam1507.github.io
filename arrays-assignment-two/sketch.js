@@ -26,17 +26,20 @@ let points;
 let pot = 0;
 let currentBet = 0;
 let currentMode;
-let dealingCounter = 0;
-let playerBetsFirst = true;
 let playerScore;
 let computerScore;
 let counter = 0;
 let allIn = false;
 let computerBet = false;
 let raise = true;
-let timeDifference = 500;
-let checkOption;
 let mouseDown = false;
+let bluff;
+let cardsSheetX;
+let cardsSheetY;
+
+function preload() {
+  cardsSheet = loadImage("cardsSheet.png");
+}
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -45,9 +48,13 @@ function setup() {
   currentMode = "dealTheCards";
 }
 
+
 function draw() {
   background("green");
   modeFeatures();
+  drawPlayerCards();
+  drawBoard();
+  showComputerCards();
 }
 
 function modeFeatures() {
@@ -61,37 +68,31 @@ function modeFeatures() {
     console.log(computerPlayer);
     currentMode = "betting";
     counter = 0;
-    raise = true;
     boardArray = [];
+    pot = 0;
+    currentBet = 0;
   }
 
   if (currentMode === "betting") {
     mouseDown = false;
-    console.log(raise + " raise?");
+    console.log("this is the pot");
+    console.log(pot);
     points = 0;
-    raise = true;
+    computerBet = false;
     if (!allIn) {
-      if (!computerBet) {
-        if (counter === 0) {
-          assessComputerHandStrength();
-        }
-        else {
-          let meritPoints = determineWinner(boardArray, computerPlayer.cards)[0];
-          console.log(meritPoints + " merit points");
-          assessComputerHandStrength();
-          points = points / 3 + meritPoints;
-        }
-        determineComputerBetting();
-        computerBet = true;
-        console.log(points + " computer points");
+      if (counter === 0) {
+        assessComputerHandStrength();
       }
       else {
-        currentMode = "playerBet";
+        let meritPoints = 2 * determineWinner(computerPlayer.cards)[0] / 3;
+        console.log(meritPoints + " merit points");
+        assessComputerHandStrength();
+        points = points / 3 + meritPoints;
       }
-      if (!raise) {
-        raise = true;
-        currentMode = "dealerAction";
-      }
+      determineComputerBetting();
+      console.log(points + " computer points");
+
+      currentMode = "playerBet";
     }
     else {
       currentMode = "dealerAction";
@@ -100,7 +101,7 @@ function modeFeatures() {
 
   if (currentMode === "playerBet") {
     console.log("player bets");
-    playerBet();
+    playerBet(computerBet);
   }
 
   if (currentMode === "dealerAction"){
@@ -120,8 +121,6 @@ function modeFeatures() {
     else {
       currentMode = "payout";
     }
-    raise = true;
-    computerBet = false;
   }
 
   if (currentMode === "flop") {
@@ -144,19 +143,19 @@ function modeFeatures() {
 
   if (currentMode === "payout") {
     console.log("payout");
-    playerScore = determineWinner(boardArray, playerOne.cards);
-    computerScore = determineWinner(boardArray, computerPlayer.cards);
+    playerScore = determineWinner(playerOne.cards);
+    computerScore = determineWinner(computerPlayer.cards);
     if (playerScore[0] > computerScore[0]) {
-      foldsTo(playerOne);
+      foldsTo(0);
     }
     else if (computerScore[0] > playerScore[0]) {
-      foldsTo(computerPlayer);
+      foldsTo(1);
     }
     else if (playerScore[1] > computerScore[1]) {
-      foldsTo(playerOne);
+      foldsTo(0);
     }
     else if (computerPlayer[1] > playerOne[1]) {
-      foldsTo(computerPlayer);
+      foldsTo(1);
     }
     else {
       playerOne.stack += pot / 2;
@@ -181,9 +180,7 @@ function modeFeatures() {
     if (mouseDown && mouseX > 100 && mouseX < 200 && mouseY > 100 && mouseY < 200) {
       mouseDown = false;
       raise = true;
-      computerBet = false;
-      bet(playerOne, 5);
-      currentMode = "betting";
+      betPlayerOne(5);
     }
   }
 }
@@ -196,9 +193,12 @@ function createDeck() {
   };
   for (let cardNumber = 0; cardNumber < 13; cardNumber++) {
     for (let cardSuit = 0; cardSuit < 4; cardSuit ++) {
+      cardNumber === 12 ? cardsSheetX = 0 : cardsSheetX = cardNumber + 1;
       card = {
         number: cardNumber,
         suit: cardSuit,
+        sheetX: cardsSheetX * cardsSheet.width / 13,
+        sheetY: cardSuit * cardsSheet.height / 4,
       };
       deckArray.push(card);
     }
@@ -256,7 +256,7 @@ function assessComputerHandStrength() {
   let cardBSuit = computerPlayer.cards[1].suit;
   if (cardA > 9 || cardB > 9) {
     if (cardA === cardB) {
-      points += 4;
+      points += 3;
     }
     else if (cardA > 10 && cardB > 10) {
       points += 2;
@@ -290,75 +290,72 @@ function assessComputerHandStrength() {
 }
 
 function determineComputerBetting() {
-  // confidence = random(Math.abs(points - 3), points);
-  confidence = points;
-  let bluff = random(100);
-  if (currentBet !== 0) {
-    if (currentBet > computerPlayer.stack / 7.5) {
-      if (confidence > 93) {
-        bet(computerPlayer, random(2, 5));
-      }
-      else {
-        if (confidence > 3) {
-          calls(computerPlayer);
-        }
-        else {
-          foldsTo(playerOne);
-        }
-        if (confidence > 6) {
-          bet(computerPlayer, random(4, 6));
-        }
-      }
-    }
+  confidence = random(Math.abs(points - 3), Math.abs(points + 3));
+  bluff = random(100);
+  if (confidence > 7) {
+    betComputerPlayer(random(3, 5));
   }
-  else if (confidence > 7) {
-    bet(computerPlayer, random(3, 5));
-  }
-  else if (confidence > 5) {
-    bet(computerPlayer, random(2));
+  else if (confidence > 4) {
+    betComputerPlayer(random(0.5, 2));
   }
   else {
     if (bluff > 85) {
-      bet(computerPlayer, random(2, 6));
+      betComputerPlayer(random(2, 6));
     }
   }
 }
 
-function playerBet() {
-  if (currentBet === 0) {
+function playerBet(computerRaised) {
+  if (computerRaised) {
+    callDisplay();
+    foldDisplay();
+  }
+  else {
     checkDisplay();
     raiseOptionDisplay();
   }
-  else {
-    callDisplay();
-    raiseOptionDisplay();
-    foldDisplay();
-  }
 }
 
-function calls(playerChosen) {
-  playerChosen.stack -= currentBet;
+function calls(playerListPlacement) {
+  playersArray[playerListPlacement].stack -= currentBet;
   pot += 2 * currentBet;
   currentBet = 0;
   raise = false;
   currentMode = "dealerAction";
 }
 
-function foldsTo(playerChosen) {
+function foldsTo(playerListPlacement) {
   pot += currentBet;
+  console.log(pot);
   currentBet = 0;
-  playerChosen.stack += pot;
+  playersArray[playerListPlacement].stack += pot;
   pot = 0;
-  console.log(playerChosen.stack + " stack of winner (after fold)");
-  console.log(playerChosen + " winner");
+  console.log(playersArray[playerListPlacement].stack + " stack of winner (after fold)");
+  console.log(playersArray[playerListPlacement]);
   currentMode = "dealTheCards";
 }
 
-function bet(playerChosen, betValue) {
-  currentBet = playerChosen.stack / Math.floor(20 / betValue);
-  playerChosen.stack -= currentBet;
-  console.log(playerChosen);
-  currentMode = "betting";
+function betPlayerOne(betValue) {
+  currentBet = playerOne.stack / Math.floor(20 / betValue);
+  console.log("player one bets" + currentBet);
+  playerOne.stack -= currentBet;
+  bluff = random(100);
+  if (points > currentBet / 5 || bluff > 80) {
+    calls(1);
+    currentMode = "dealerAction";
+  }
+  else {
+    foldsTo(0);
+  }
+}
+
+function betComputerPlayer(betValue) {
+  console.log(betValue);
+  currentBet = betValue * computerPlayer.stack / 20;
+  console.log(currentBet);
+  computerPlayer.stack -= currentBet;
+  currentMode = "playerBet";
+  computerBet = true;
 }
 
 function checkDisplay() {
@@ -368,7 +365,6 @@ function checkDisplay() {
     mouseDown = false;
     currentMode = "dealerAction";
     console.log("check");
-    checkOption = false;
   }
 }
 
@@ -390,6 +386,7 @@ function raiseOptionDisplay() {
       currentBet = 0;
       allIn = true;
     }
+    console.log('pretend I bet');
     currentMode = "playerRaising";
   }
 }
@@ -399,7 +396,7 @@ function callDisplay() {
   rect(6 * width / 7, 6 * height / 7, width / 7, height / 7);
   if (mouseDown && mouseX > 6 * width / 7 && mouseX < width && mouseY > 6 * height / 7 && mouseY < height) {
     mouseDown = false;
-    calls(playerOne);
+    calls(0);
   }
 }
 
@@ -408,19 +405,18 @@ function foldDisplay() {
   rect(5 * width / 7, 6 * height / 7, width / 7, height / 7);
   if (mouseDown && mouseX > 5 * width / 7 && mouseX < 6 * width / 7 && mouseY > 6 * height / 7 && mouseY < height) {
     mouseDown = false;
-    foldsTo(computerPlayer);
+    foldsTo(1);
   }
 }
 
-function determineWinner(boardCardsArray, cardsArrayIndividual) {
+function determineWinner(cardsArrayIndividual) {
   let sameCardCounter = 0;
   let playerFlushHighCard = 0;
   let pairTotal = 0;
   let pairNumber = 0;
   let tripsNumber = 0;
   let sameSuitCounter = 0;
-  let cardsArrayTotal = structuredClone(boardCardsArray);
-
+  let cardsArrayTotal = structuredClone(boardArray);
   for (let i = 0; i < 2; i ++) {
     cardsArrayTotal.push(cardsArrayIndividual[i]);
   }
@@ -484,7 +480,10 @@ function determineWinner(boardCardsArray, cardsArrayIndividual) {
   cardsArrayTotal.sort((a, b) => a.number - b.number);
   cardsArrayIndividual.sort((a, b) => a.number - b.number);
   for (i = 0; i < 3; i ++) {
-    if (cardsArrayTotal[i].number === cardsArrayTotal[i + 1].number - 1 === cardsArrayTotal[i + 2].number - 2 === cardsArrayTotal[i + 3].number - 3 === cardsArrayTotal[i + 4].number - 4) {
+    if (cardsArrayTotal[i].number === cardsArrayTotal[i + 1].number - 1 &&
+       cardsArrayTotal[i].number === cardsArrayTotal[i + 2].number - 2 &&
+       cardsArrayTotal[i].number === cardsArrayTotal[i + 3].number - 3 &&
+       cardsArrayTotal[i].number === cardsArrayTotal[i + 4].number - 4) {
       return [5, cardsArrayTotal[i + 4].number];
     }
   }
@@ -506,3 +505,22 @@ function mouseReleased() {
   mouseDown = true;
 }
 
+function drawPlayerCards() {
+  for (let i = 0; i < 2; i ++) {
+    image(cardsSheet, width / 2 - 160 + 70 * i, 6 * height / 7 - 50, 100, 120, playerOne.cards[i].sheetX, playerOne.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+  }
+}
+
+function drawBoard() {
+  if (counter > 0) {
+    for (let i = 0; i < boardArray.length; i ++) {
+      image(cardsSheet, width / 3 + 105 * i, height / 3, 100, 120, boardArray[i].sheetX, boardArray[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+    }
+  }
+}
+
+function showComputerCards() {
+  for (let i = 0; i < 2; i ++) {
+    image(cardsSheet, width / 2 - 160 + 70 * i, height / 7 , 100, 120, computerPlayer.cards[i].sheetX, computerPlayer.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+  }
+}
