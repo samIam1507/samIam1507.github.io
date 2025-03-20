@@ -39,6 +39,7 @@ let cardsSheetY;
 
 function preload() {
   cardsSheet = loadImage("cardsSheet.png");
+  cardsBackSheet = loadImage("cardsBackSheet.png");
 }
 
 function setup() {
@@ -54,7 +55,7 @@ function draw() {
   modeFeatures();
   drawPlayerCards();
   drawBoard();
-  showComputerCards();
+  hiddenComputerCards();
 }
 
 function modeFeatures() {
@@ -171,10 +172,10 @@ function modeFeatures() {
     else if (computerPlayer[1] > playerOne[1]) {
       foldsTo(1);
     }
-    else if (playerOne.cards[1] > computerPlayer.cards[1]) {
+    else if (playerOne.cards[1].number > computerPlayer.cards[1].number) {
       foldsTo(0);
     }
-    else if (computerPlayer.cards[1] > playerOne.cards[0]) {
+    else if (computerPlayer.cards[1].number > playerOne.cards[0].number) {
       foldsTo(1);
     }
     else {
@@ -564,5 +565,11 @@ function drawBoard() {
 function showComputerCards() {
   for (let i = 0; i < 2; i ++) {
     image(cardsSheet, width / 2 - 160 + 70 * i, 30 , 100, 120, computerPlayer.cards[i].sheetX, computerPlayer.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+  }
+}
+
+function hiddenComputerCards() {
+  for (let i = 0; i < 2; i ++) {
+    image(cardsBackSheet, width / 2 - 160 + 70 * i, 30 , 100, 120, 0, 0, cardsBackSheet.width / 4, cardsSheet.height, CONTAIN);
   }
 }
