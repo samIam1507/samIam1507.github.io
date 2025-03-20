@@ -158,6 +158,7 @@ function modeFeatures() {
       foldsTo(1);
     }
     else {
+      console.log("tie");
       playerOne.stack += pot / 2;
       computerPlayer.stack += pot / 2;
       pot = 0;
@@ -414,7 +415,7 @@ function determineWinner(cardsArrayIndividual) {
   let playerFlushHighCard = 0;
   let pairTotal = 0;
   let pairNumber = 0;
-  let tripsNumber = 0;
+  let tripsNumber = -1;
   let sameSuitCounter = 0;
   let cardsArrayTotal = structuredClone(boardArray);
   for (let i = 0; i < 2; i ++) {
@@ -424,6 +425,7 @@ function determineWinner(cardsArrayIndividual) {
   console.log("determining winner");
 
   for (let card of cardsArrayTotal) {
+    sameCardCounter = 0;
     for (let n = 0; n < cardsArrayTotal.length; n ++) {
       if (cardsArrayTotal[n].number === card.number) {
         sameCardCounter += 1;
@@ -436,13 +438,13 @@ function determineWinner(cardsArrayIndividual) {
       tripsNumber = card.number;
     }
     if (sameCardCounter === 2) {
-      if (!(pairTotal > 0 && card.number > pairNumber)) {
+      if (pairTotal === 0 || card.number > pairNumber) {
         pairNumber = card.number;
       }
       pairTotal += 1;
     }
   }
-  if (sameCardCounter === 3) {
+  if (sameCardCounter !== -1) {
     if (pairTotal > 0) {
       return [7, tripsNumber];
     }
@@ -451,6 +453,7 @@ function determineWinner(cardsArrayIndividual) {
     }
   }
   for (let i = 0; i < 4; i ++) {
+    sameSuitCounter = 0;
     for (card of cardsArrayTotal) {
       if (card.suit === i) {
         sameSuitCounter += 1;
@@ -479,6 +482,8 @@ function determineWinner(cardsArrayIndividual) {
   }
   cardsArrayTotal.sort((a, b) => a.number - b.number);
   cardsArrayIndividual.sort((a, b) => a.number - b.number);
+  console.log("this is the cards array total");
+  console.log(cardsArrayTotal);
   for (i = 0; i < 3; i ++) {
     if (cardsArrayTotal[i].number === cardsArrayTotal[i + 1].number - 1 &&
        cardsArrayTotal[i].number === cardsArrayTotal[i + 2].number - 2 &&
@@ -514,13 +519,13 @@ function drawPlayerCards() {
 function drawBoard() {
   if (counter > 0) {
     for (let i = 0; i < boardArray.length; i ++) {
-      image(cardsSheet, width / 3 + 105 * i, height / 3, 100, 120, boardArray[i].sheetX, boardArray[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+      image(cardsSheet, width / 3 + 80 * i, height / 2.5, 100, 120, boardArray[i].sheetX, boardArray[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
     }
   }
 }
 
 function showComputerCards() {
   for (let i = 0; i < 2; i ++) {
-    image(cardsSheet, width / 2 - 160 + 70 * i, height / 7 , 100, 120, computerPlayer.cards[i].sheetX, computerPlayer.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+    image(cardsSheet, width / 2 - 160 + 70 * i, 30 , 100, 120, computerPlayer.cards[i].sheetX, computerPlayer.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
   }
 }
