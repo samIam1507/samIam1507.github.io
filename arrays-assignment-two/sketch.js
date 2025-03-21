@@ -79,8 +79,6 @@ function preload() {
 
 // creates window, places all players in playerArray, plays chillTunes on loop, and sets the beginning mode
 function setup() {
-  chillTunes.loop();
-  chillTunes.volume(0.5);
   imageMode(CENTER);
   createCanvas(windowWidth, windowHeight);
   playersArray.push(playerOne);
@@ -97,10 +95,15 @@ function draw() {
     drawBoard();
     hiddenComputerCards();
   }
+
   if (currentMode === "showTheCards") {
     drawPlayerCards();
     showComputerCards();
     drawBoard();
+  }
+
+  if (!chillTunes.isPlaying()) {
+    chillTunes.play();
   }
 }
 
@@ -304,7 +307,7 @@ function modeFeatures() {
       currentMode = "winningScreen";
     }
   }
-  
+
   // displays the winning result, when screen clicked currentMode set to dealTheCards
   if (currentMode === "winningScreen") {
     textSize(60);
