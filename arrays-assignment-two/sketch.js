@@ -8,7 +8,7 @@
 // I also looked into randomization and ordering, but based on what I saw there are accepted ways of doing it
 // (such as fisher-yates shuffle) or sorting functions that I followed pretty directly, so I count that less
 // as an extra that as a cool new skill. The final extra for experts was adding external media (sound, in this case)
-// which including calling and changing elements such as volume
+// which including calling, playing, and looping audio
 
 // define necessary arrays and board cards including deck, flop, board, players, turn, and river
 let deckArray = [];
@@ -77,7 +77,7 @@ function preload() {
   shuffling = createAudio("shuffling.mp3");
 }
 
-// creates window, places all players in playerArray, plays chillTunes on loop, and sets the beginning mode
+// creates window, places all players in playerArray, and sets the beginning mode
 function setup() {
   imageMode(CENTER);
   createCanvas(windowWidth, windowHeight);
@@ -86,7 +86,7 @@ function setup() {
   currentMode = "homeScreen";
 }
 
-// sets the background the calls modeFeatures, which regulates most gamePlay, as well as drawing all cards
+// sets the background the calls modeFeatures, which regulates most gamePlay, as well as drawing all cards and playing chillTunes
 function draw() {
   background(68, 189, 106);
   modeFeatures();
@@ -102,9 +102,7 @@ function draw() {
     drawBoard();
   }
 
-  if (!chillTunes.isPlaying()) {
-    chillTunes.play();
-  }
+  chillTunes.loop();
 }
 
 // determines which functions will be called and actions undertaken according to the current mode
