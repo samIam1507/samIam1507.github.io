@@ -1,9 +1,14 @@
-// Project Title
-// Your Name
-// Date
+// Simplified Poker
+// Samuel Wardell
+// 20 / 03 / 2025
 //
 // Extra for Experts:
-// - describe what you did to take this project "above and beyond"
+// - The first element that I added beyond what we had learned in class (at least as far as I remember) was
+// displaying only part of an image by adding extra perameters, which allowed me to show cards much easer. 
+// I also looked into randomization and ordering, but based on what I saw there are accepted ways of doing it
+// (such as fisher-yates shuffle) or sorting functions that I followed pretty directly, so I count that less
+// as an extra that as a cool new skill. The final extra for experts was adding external media (sound, in this case)
+// which including calling and changing elements such as volume
 
 // define necessary arrays and board cards including deck, flop, board, players, turn, and river
 let deckArray = [];
@@ -41,15 +46,19 @@ let pot = 0;
 let currentBet = 0;
 let currentMode;
 let counter = 0;
+let manualFold = false;
+let winner;
 
-// define perameters to allow single mouse clicks to be registered
+// miscellaneous perameters, including mouseDown and timing-related perameters
 let mouseDown = false;
+let timeGap = 10000;
+let currentTime;
 
 // defines perameters which will be used to record which portion of the card sheets whill be shown
 let cardsSheetX;
 let cardsSheetY;
 
-// preloads images to avoid lagging
+// preloads images + audio to avoid lagging
 function preload() {
   cardsSheet = loadImage("cards-sheet.png");
   cardsBackSheet = loadImage("cards-back-sheet.png");
@@ -58,24 +67,40 @@ function preload() {
   rules = loadImage("rules.png");
   raiseButton = loadImage("raise-button.png");
   checkButton = loadImage("check-button.png");
+  foldButton = loadImage("fold-button.png");
+  callButton = loadImage("call-button.png");
+  raiseFive = loadImage("raise-five.png");
+  raiseTen = loadImage("raise-ten.png");
+  raiseTwenty = loadImage("raise-twenty.png");
+  raiseFifty = loadImage("raise-fifty.png");
+  chillTunes = createAudio("chill-tunes.mp3");
+  shuffling = createAudio("shuffling.mp3");
 }
 
 // creates window, places all players in playerArray, and sets the beginning mode
 function setup() {
+  imageMode(CENTER);
   createCanvas(windowWidth, windowHeight);
   playersArray.push(playerOne);
   playersArray.push(computerPlayer);
   currentMode = "homeScreen";
 }
 
-// sets the background the calls modeFeatures, which regulates most gamePlay, as well as drawing all cards
+// sets the background the calls modeFeatures, which regulates most gamePlay, as well as drawing all cards and playing chillTunes
 function draw() {
+  chillTunes.loop();
+  chillTunes.volume(0.5);
   background(68, 189, 106);
   modeFeatures();
-  if (currentMode !== "homeScreen" && currentMode !== "rules") {
+  if (currentMode !== "homeScreen" && currentMode !== "rules" && currentMode !== "winningScreen" && currentMode !== "showTheCards") {
     drawPlayerCards();
     drawBoard();
     hiddenComputerCards();
+  }
+  if (currentMode === "showTheCards") {
+    drawPlayerCards();
+    showComputerCards();
+    drawBoard();
   }
 }
 
@@ -84,7 +109,6 @@ function modeFeatures() {
 
   // if mode is homeScreen, display logo and move to rules when clicked
   if (currentMode === "homeScreen") {
-    imageMode(CENTER);
     image(homeScreen, width / 2, height / 2, 2 * height / 3, 2 * height / 3);
     image(clickForRules, width / 2, 3 * height / 4, height / 2, height / 2);
 
@@ -106,10 +130,10 @@ function modeFeatures() {
     }
   }
 
-  // if the mode is dealTheCards, the deck is created, delt, and logged. 
+  // if the mode is dealTheCards, shuffling is played, the deck is created, delt, and logged. 
   // The mode is then set to 'betting' and necessary perameters are reset
   if (currentMode === "dealTheCards") {
-    imageMode(CORNER);
+    shuffling.play();
     createDeck();
     shuffleDeck();
     dealTheCards();
@@ -119,6 +143,7 @@ function modeFeatures() {
     currentMode = "betting";
     counter = 0;
     boardArray = [];
+    manualFold = false;
 
     // sets the initial pot (or buy-in) to be 1/20th the smaller of the two players stacks
     if (computerPlayer.stack > playerOne.stack) {
@@ -178,7 +203,9 @@ function modeFeatures() {
   }
 
   // if currentMode is 'dealerAction', increase the counter and call the appropriate action - flop, turn, river, or payout
+  // Also plays shuffling noise
   if (currentMode === "dealerAction"){
+    shuffling.play();
     console.log("dealer Action");
     console.log(boardArray);
     counter += 1;
@@ -225,62 +252,75 @@ function modeFeatures() {
     // find the strength of each players hand by calling determineWinner and passing their cards in
     console.log("payout");
     playerScore = determineWinner(playerOne.cards);
+    playerHand = playerScore[2];
     computerScore = determineWinner(computerPlayer.cards);
+    computerHand = computerScore[2];
 
     // if the principle (first) value returned into the playerScore / computerScore is greater than the others, call foldsTo that player
     if (playerScore[0] > computerScore[0]) {
+      winner = "HUMANITY was victorious and won " + playerHand;
       foldsTo(playerOne);
     }
     else if (computerScore[0] > playerScore[0]) {
+      winner = "The ROBOT was victorious and won " + computerHand;
       foldsTo(computerPlayer);
     }
 
     // if the second value returned into playerScore / computerScore is greater than that of the others, calls foldsTo that player
     else if (playerScore[1] > computerScore[1]) {
+      winner = "HUMANITY was victorious and won " + playerHand;
       foldsTo(playerOne);
     }
     else if (computerPlayer[1] > playerOne[1]) {
+      winner = "The ROBOT was victorious and won " + computerHand;
       foldsTo(computerPlayer);
     }
 
     // if both above values are tied, the player with the higher card in their hand is given the win
     else if (playerOne.cards[1].number > computerPlayer.cards[1].number) {
+      winner = "HUMANITY was victorious and won " + playerHand;
       foldsTo(playerOne);
     }
     else if (computerPlayer.cards[1].number > playerOne.cards[0].number) {
+      winner = "The ROBOT was victorious and won " + computerHand;
       foldsTo(computerPlayer);
     }
 
     // if all is equal, split the pot between the two players
     else {
+      winner = "It was a tie " + playerHand;
       console.log("tie");
       playerOne.stack += pot / 2;
       computerPlayer.stack += pot / 2;
       pot = 0;
+      currentMode = "showTheCards";
+      currentTime = millis();
     }
-
-    currentMode = "dealTheCards";
   }
 
-  if (currentMode === "pause") {
-
+  // if currenMode is showTheCards, triggers draw loop to show all cards and waits 10 second before switching to winningScreen
+  if (currentMode === "showTheCards") {
+    if (currentTime + timeGap < millis()) {
+      currentMode = "winningScreen";
+    }
   }
+  // displays the winning result, when screen clicked currentMode set to dealTheCards
+  if (currentMode === "winningScreen") {
+    textSize(60);
+    text(winner, width / 10, height / 3, 4 * width / 5, height);
 
-  if (currentMode === "rules") {
-    
+    // when mouse clicked currentMode set to dealTheCards
+    if (mouseDown) {
+      currentMode = "dealTheCards";
+    }
   }
 
   // if currentMode is 'playerRaising', create a tile to allow the player to raise
   if (currentMode === "playerRaising") {
-    console.log("player raising");
-    fill("blue");
-    square(100, 100, 100);
-
-    // if the player presses the raise tile, call betPlayerOne and pass in the betting factor
-    if (mouseDown && mouseX > 100 && mouseX < 200 && mouseY > 100 && mouseY < 200) {
-      mouseDown = false;
-      betPlayerOne(5);
-    }
+    raiseFiveDisplay();
+    raiseTenDisplay();
+    raiseTwentyDisplay();
+    raiseFiftyDisplay();
   }
 }
 
@@ -313,6 +353,7 @@ function createDeck() {
 
 // randomizes the deck using the fisher-yates shuffle
 function shuffleDeck() {
+
   for (let i = deckArray.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
     const swap = deckArray[i];
@@ -326,6 +367,7 @@ function dealTheCards() {
   playerOne.cards = [];
   computerPlayer.cards = [];
   deckArray.pop();
+
   for (let i = 0; i < 2; i ++) {
     playerOne.cards.push(deckArray.pop());
     computerPlayer.cards.push(deckArray.pop());
@@ -335,6 +377,7 @@ function dealTheCards() {
 // adds three cards to the flop and deck arrays
 function dealFlop() {
   deckArray.pop();
+
   for (let i = 0; i < 3; i++) {
     let newCard = deckArray.pop();
     flopArray.push(newCard);
@@ -437,7 +480,6 @@ function determineComputerBetting() {
 
 // calls the function that show the call, fold, check, and raise options depending on the actions of the computer
 function playerBetDecision(computerRaised) {
-  imageMode(CENTER);
 
   if (computerRaised) {
     callDisplay();
@@ -447,8 +489,6 @@ function playerBetDecision(computerRaised) {
     checkDisplay();
     raiseOptionDisplay();
   }
-
-  imageMode(CORNER);
 }
 
 // the player passed calls the current bet
@@ -459,15 +499,15 @@ function calls(player) {
   currentMode = "dealerAction";
 }
 
-// the pot is given to the player passed in and the currentMode is set to 'dealTheCards'
+// the pot is given to the player passed in and the currentMode is set to 'winningScreen'
 function foldsTo(player) {
-
   pot += currentBet;
   console.log(pot);
   player.stack += pot;
   console.log(player.stack + " stack of winner (after fold)");
   console.log(player);
-  currentMode = "dealTheCards";
+  currentMode = "showTheCards";
+  currentTime = millis();
 }
 
 // makes the bet if playerOne decides to bet, and determines the computers response
@@ -485,6 +525,7 @@ function betPlayerOne(betValue) {
   // the computer calls and moves to next mode. Otherwise, it folds
   if (confidence > currentBet / 10 || bluff > 80) {
     calls(computerPlayer);
+
     if (counter === 4) {
       currentMode = "payout";
     }
@@ -493,13 +534,13 @@ function betPlayerOne(betValue) {
     }
   }
   else {
+    winner = "the ROBOT folded to HUMANITY and HUMANITY won ";
     foldsTo(playerOne);
   }
 }
 
 // makes the bet for the computerPlayer based on the inputed betValue and the computers stack size
 function betComputerPlayer(betValue) {
-  
   console.log(betValue);
   currentBet = betValue * computerPlayer.stack / 20;
   console.log(currentBet);
@@ -514,7 +555,7 @@ function checkDisplay() {
   image(checkButton, 4 * width / 5, 3 * height / 5, width / 5, 2 * width / 25);
 
   // if mouseDown set to true and the mouse is in the correct location, sets mode to dealerAction
-  if (mouseDown && mouseX > 5 * width / 7 && mouseX < 6 * width / 7 && mouseY > 5 * height / 7 && mouseY < 6 * height / 7) {
+  if (mouseDown && mouseX > 7 * width / 10 && mouseX < 9 * width / 10 && mouseY > 3 * height / 5 - width / 25&& mouseY < 3 * height / 5 + width / 25) {
     mouseDown = false;
     currentMode = "dealerAction";
     console.log("check");
@@ -527,7 +568,7 @@ function raiseOptionDisplay() {
   image(raiseButton, 4 * width / 5, 2 * height / 5, width / 5, 2 * width / 25);
 
   // if mouseDown and mouse in correct location, prepares to make a bet
-  if (mouseDown && mouseX > 6 * width / 7 && mouseX < width && mouseY > 5 * height / 7 && mouseY < 6 * height / 7) {
+  if (mouseDown && mouseX > 7 * width / 10 && mouseX < 9 * width / 10 && mouseY > 2 * height / 5 - width / 25 && mouseY < 2 * height / 5 + width / 25) {
     mouseDown = false;
 
     // if the players stack is larger than the current bet, manually calls the current bet. Otherwise goes all in
@@ -552,10 +593,10 @@ function raiseOptionDisplay() {
 // displays the call option, and calls if clicked
 function callDisplay() {
   fill("yellow");
-  rect(6 * width / 7, 6 * height / 7, width / 7, height / 7);
+  image(callButton, 4 * width / 5, 2 * height / 5, width / 5, 2 * width / 25);
 
   // if mouseDown and in correct location, playerOne calls
-  if (mouseDown && mouseX > 6 * width / 7 && mouseX < width && mouseY > 6 * height / 7 && mouseY < height) {
+  if (mouseDown && mouseX > 7 * width / 10 && mouseX < 9 * width / 10 && mouseY > 2 * height / 5 - width / 25 && mouseY < 2 * height / 5 + width / 25) {
     mouseDown = false;
     calls(playerOne);
   }
@@ -564,12 +605,61 @@ function callDisplay() {
 // displays the fold option, foldsTo other player if called
 function foldDisplay() {
   fill("blue");
-  rect(5 * width / 7, 6 * height / 7, width / 7, height / 7);
+  image(foldButton, 4 * width / 5, 3 * height / 5, width / 5, 2 * width / 25);
 
   // if mouseDown and in correct location, playerOne folds
-  if (mouseDown && mouseX > 5 * width / 7 && mouseX < 6 * width / 7 && mouseY > 6 * height / 7 && mouseY < height) {
+  if (mouseDown && mouseX > 7 * width / 10 && mouseX < 9 * width / 10 && mouseY > 3 * height / 5 - width / 25&& mouseY < 3 * height / 5 + width / 25) {
     mouseDown = false;
+    winner = "HUMANITY folded to the ROBOT and the ROBOT won ";
     foldsTo(computerPlayer);
+  }
+}
+
+// displays the raise 5% option
+function raiseFiveDisplay() {
+  fill("black");
+  image(raiseFive, 4 * width / 5, height / 5, width / 5, 2 * width / 25);
+
+  // if mouseDown set to true and the mouse is in the correct location, calls betPlayerOne and raises by 5 percent
+  if (mouseDown && mouseX > 7 * width / 10 && mouseX < 9 * width / 10 && mouseY > height / 5 - width / 25&& mouseY < height / 5 + width / 25) {
+    mouseDown = false;
+    betPlayerOne(1);
+  }
+}
+
+// displays the raise 10% option
+function raiseTenDisplay() {
+  fill("red");
+  image(raiseTen, 4 * width / 5, 2 * height / 5, width / 5, 2 * width / 25);
+
+  // if mouseDown and mouse in correct location, calls betPlayerOne and raises by 10 percent
+  if (mouseDown && mouseX > 7 * width / 10 && mouseX < 9 * width / 10 && mouseY > 2 * height / 5 - width / 25 && mouseY < 2 * height / 5 + width / 25) {
+    mouseDown = false;
+    betPlayerOne(2);
+  }
+}
+
+// displays the raise 20% option
+function raiseTwentyDisplay() {
+  fill("blue");
+  image(raiseTwenty, 4 * width / 5, 3 * height / 5, width / 5, 2 * width / 25);
+
+  // if mouseDown and in correct location, calls betPlayerOne and raises by 20 percent
+  if (mouseDown && mouseX > 7 * width / 10 && mouseX < 9 * width / 10 && mouseY > 3 * height / 5 - width / 25&& mouseY < 3 * height / 5 + width / 25) {
+    mouseDown = false;
+    betPlayerOne(4);
+  }
+}
+
+// displays the raise 50% option
+function raiseFiftyDisplay() {
+  fill("yellow");
+  image(raiseFifty, 4 * width / 5, 4 * height / 5, width / 5, 2 * width / 25);
+
+  // if mouseDown and in correct location, calls betPlayerOne and raises by 50 percent
+  if (mouseDown && mouseX > 7 * width / 10 && mouseX < 9 * width / 10 && mouseY > 4 * height / 5 - width / 25 && mouseY < 4 * height / 5 + width / 25) {
+    mouseDown = false;
+    betPlayerOne(10);
   }
 }
 
@@ -615,7 +705,7 @@ function determineWinner(cardsArrayIndividual) {
     // if 4 of a kind present, returns 8 (best possible hand type) and the card value of the quads
     if (sameCardCounter === 4) {
       console.log("quads");
-      return [8, card.number];
+      return [8, card.number, "with quads"];
     }
 
     // if three of a kind is present, records the cardNumber and sets trips to be true
@@ -639,7 +729,7 @@ function determineWinner(cardsArrayIndividual) {
   // if trips is true and there is at least one pair, returns 7 (second best hand type) and the trips card number
   if (trips && pairTotal > 0) {
     console.log("full house");
-    return [7, tripsNumber];
+    return [7, tripsNumber, "with a full house"];
   }
 
   // iterates through suits
@@ -669,7 +759,7 @@ function determineWinner(cardsArrayIndividual) {
           }
 
           console.log("flush");
-          return [6, playerFlushHighCard];
+          return [6, playerFlushHighCard, "with a flush"];
         }
       }
     }
@@ -687,7 +777,7 @@ function determineWinner(cardsArrayIndividual) {
          cardsArrayTotal[i].number === cardsArrayTotal[i + 3].number - 3 &&
          cardsArrayTotal[i].number === cardsArrayTotal[i + 4].number - 4) {
         console.log("straight");
-        return [5, cardsArrayTotal[i + 4].number];
+        return [5, cardsArrayTotal[i + 4].number, "with a straigh"];
       }
     }
   }
@@ -695,65 +785,68 @@ function determineWinner(cardsArrayIndividual) {
   // returns 4 (5th best hand) and the tripsNumber if trips is true
   if (trips) {
     console.log("trips");
-    return [4, tripsNumber];
+    return [4, tripsNumber, "with trips"];
   }
 
   // if there is more than one pair, returns 3 (6th best hand) and the pairNumber
   else if (pairTotal > 1) {
-    console.log("2 pair");
-    console.log(pairTotal);
-    return [3, pairNumber];
+    console.log("two pair");
+    return [3, pairNumber, "with 2 pair"];
   }
 
   // if there is a pair, returns 2 (2nd worst hand) and the pairNumber
   else if (pairTotal === 1) {
-    console.log("1 pair");
-    console.log(pairTotal);
-    return [2, pairNumber];
+    console.log("one pair");
+    return [2, pairNumber, "with 1 pair"];
   }
 
   // else returns 1 (worst hand) and the players high card
   else {
     console.log("high card");
-    return [1, cardsArrayIndividual[1].number];
+    return [1, cardsArrayIndividual[1].number, "with high card"];
   }
 }
 
-// calls once when mouseReleased, sets mouseDown to true
+// calls once when mousePressed, sets mouseDown to true
 function mousePressed() {
   mouseDown = true;
 }
 
+// calls once when mouseReleased, set mouseDown to false
 function mouseReleased() {
   mouseDown = false;
 }
 
 // draws the players cards in front of them (taken from the cardSheet image based on location assigned earlier)
 function drawPlayerCards() {
+
   for (let i = 0; i < 2; i ++) {
-    image(cardsSheet, width / 2 - 160 + 70 * i, 6 * height / 7 - 50, 90, 120, playerOne.cards[i].sheetX, playerOne.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+    image(cardsSheet, width / 2 - 160 + 70 * i, 8 * height / 9 - 50, 90, 120, playerOne.cards[i].sheetX, playerOne.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
   }
 }
 
 // draws the board cards as they are added
 function drawBoard() {
+
   if (counter > 0) {
     for (let i = 0; i < boardArray.length; i ++) {
-      image(cardsSheet, width / 5 + 80 * i, height / 2.5, 100, 120, boardArray[i].sheetX, boardArray[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+      image(cardsSheet, width / 5 + 80 * i, height / 2, 100, 120, boardArray[i].sheetX, boardArray[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
     }
   }
 }
 
 // draws the computer cards faceup - only for use in demo's or after betting is over
 function showComputerCards() {
+
   for (let i = 0; i < 2; i ++) {
-    image(cardsSheet, width / 2 - 160 + 70 * i, 30 , 100, 120, computerPlayer.cards[i].sheetX, computerPlayer.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
+    image(cardsSheet, width / 2 - 160 + 70 * i, height / 6, 100, 120, computerPlayer.cards[i].sheetX, computerPlayer.cards[i].sheetY, cardsSheet.width / 13, cardsSheet.height / 4, CONTAIN);
   }
 }
 
 // draws computer cards facedown - for use during hand
 function hiddenComputerCards() {
+  
   for (let i = 0; i < 2; i ++) {
-    image(cardsBackSheet, width / 2 - 160 + 70 * i, 30 , 100, 120, 0, 0, cardsBackSheet.width / 4, cardsSheet.height, CONTAIN);
+    image(cardsBackSheet, width / 2 - 160 + 70 * i, height / 6, 100, 120, 0, 0, cardsBackSheet.width / 4, cardsSheet.height, CONTAIN);
   }
 }
