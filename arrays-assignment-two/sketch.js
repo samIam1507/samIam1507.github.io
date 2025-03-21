@@ -304,6 +304,7 @@ function modeFeatures() {
       currentMode = "winningScreen";
     }
   }
+  
   // displays the winning result, when screen clicked currentMode set to dealTheCards
   if (currentMode === "winningScreen") {
     textSize(60);
