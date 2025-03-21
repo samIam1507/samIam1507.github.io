@@ -77,8 +77,10 @@ function preload() {
   shuffling = createAudio("shuffling.mp3");
 }
 
-// creates window, places all players in playerArray, and sets the beginning mode
+// creates window, places all players in playerArray, plays chillTunes on loop, and sets the beginning mode
 function setup() {
+  chillTunes.loop();
+  chillTunes.volume(0.5);
   imageMode(CENTER);
   createCanvas(windowWidth, windowHeight);
   playersArray.push(playerOne);
@@ -86,10 +88,8 @@ function setup() {
   currentMode = "homeScreen";
 }
 
-// sets the background the calls modeFeatures, which regulates most gamePlay, as well as drawing all cards and playing chillTunes
+// sets the background the calls modeFeatures, which regulates most gamePlay, as well as drawing all cards
 function draw() {
-  chillTunes.loop();
-  chillTunes.volume(0.5);
   background(68, 189, 106);
   modeFeatures();
   if (currentMode !== "homeScreen" && currentMode !== "rules" && currentMode !== "winningScreen" && currentMode !== "showTheCards") {
