@@ -1,4 +1,4 @@
-// 2D Array Grid Demo
+// 2D Array Grid Neigbours Demo
 
 // let grid = [[0, 1, 1, 0], 
 //             [1, 1, 0, 0], 
@@ -25,7 +25,6 @@ function setup() {
 function draw() {
   background(220);
   displayGrid();
-  toggle(SQUARE_DIMENSIONS, SQUARE_DIMENSIONS);
 }
 function keyPressed() {
   if (key === "r") {
@@ -77,21 +76,19 @@ function generateRandomGrid(cols, rows) {
   return newGrid;
 }
 
-function toggle(cols, rows) {
-  for (let y = 0; y < rows; y ++) {
-    for (let x = 0; x < cols; x ++) {
-      if (mouseDown && mouseX > x * cellSize && mouseX < (x + 1) * cellSize && mouseY > y * cellSize && mouseY < (y + 1) * cellSize) {
-        grid[y][x] = !grid[y][x];
-        mouseDown = false;
-      }
-    }
+function toggle(x, y) {
+  if (x >= 0 && x < SQUARE_DIMENSIONS && y >= 0 && y < SQUARE_DIMENSIONS) {
+    grid[y][x] = !grid[y][x];
   }
 }
 
-function mouseClicked() {
-  mouseDown = true;
-}
-
-function mouseReleased() {
-  mouseDown = false;
+function mousePressed() {
+  let x = Math.floor(mouseX/cellSize);
+  let y = Math.floor(mouseY/cellSize);
+  
+  toggle(x, y);
+  toggle(x + 1, y);
+  toggle(x, y + 1);
+  toggle(x - 1, y);
+  toggle(x, y - 1);
 }

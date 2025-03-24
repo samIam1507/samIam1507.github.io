@@ -7,6 +7,7 @@
 - [Terain Demonstration](terain-demo)
 - [Bubble Object Notation](bubbles-demo)
 - [2D Array Grid](grid-demo)
+= [Grid Neighbours](neighbours-grid-demo)
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene-assignment)
