@@ -34,6 +34,7 @@ export default [
         DEGREES: "readonly",
         DELETE: "readonly",
         DIFFERENCE: "readonly",
+        DILATE: "readonly",
         DODGE: "readonly",
         DOWN_ARROW: "readonly",
         ENTER: "readonly",
