@@ -16,3 +16,4 @@
 - [Interactive Scene](interactive-scene-assignment)
 - [Arrays and Object Notation Assignment](arrays-assignment-original)
 - [Arrays and Object Notation Assignment 2 - Electric Bugaloo](arrays-assignment-two)
+- [2D Arrays Assignment](two-d-arrays-assignment)

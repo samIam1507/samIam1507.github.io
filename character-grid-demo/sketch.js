@@ -26,7 +26,7 @@ function preload() {
   woodFloor = loadImage("wood-floor.png");
 }
 function setup() {
-  createCanvas(windowWidth, windowHeight);
+  createCanvas(4 * windowWidth / 5, 4 * windowHeight / 5);
   widthFactor = Math.floor(width / cellSize);
   heighFactor = Math.floor(height / cellSize);
   grid = generateRandomGrid(widthFactor, heighFactor);
