@@ -17,7 +17,7 @@ let lines;
 
 function preload() {
   //load level data
-  levelToLoad = "levels/0.txt";
+  levelToLoad = "levels/2.txt";
   lines = loadStrings(levelToLoad);
 
   //load background

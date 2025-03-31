@@ -11,6 +11,7 @@
 - [Rectangle Grid](rectangle-grid-demo)
 - [Game of Life](game-of-life-demo)
 - [Character Moving in Grid](character-grid-demo)
+- [platformer](13-platformer)
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene-assignment)
