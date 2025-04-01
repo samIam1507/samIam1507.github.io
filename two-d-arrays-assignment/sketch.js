@@ -12,6 +12,8 @@ let cols = 8;
 let playerOnePlaying = true;
 let extraTurn = false;
 
+let sumTop;
+let sumBottom;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -121,53 +123,66 @@ function mousePressed() {
 }
 
 function moveTiles(gameMode) {
+  sumTop = 0;
+  sumBottom = 0;
   stoneCounter = grid[y][x];
   grid[y][x] = 0;
 
-  for (let i = 0; i < stoneCounter; i ++) {
-    if (y === 0) {
-      if (x !== 1) {
-        x --;
-        grid[y][x] ++;
-      }
-      else {
-        if (i + 1 === stoneCounter) {
-          extraTurn = true;
-        }
-        else {
-          y = 1;
-          x = 1;
+  if (gameMode === "basic") {
+    for (let i = 0; i < stoneCounter; i ++) {
+      if (y === 0) {
+        if (x !== 1) {
+          x --;
           grid[y][x] ++;
         }
-        if (playerOnePlaying) {
-          grid[0][0] += 1;
-          i ++;
+        else {
+          if (i + 1 === stoneCounter) {
+            extraTurn = true;
+          }
+          else {
+            y = 1;
+            x = 1;
+            grid[y][x] ++;
+          }
+          if (playerOnePlaying) {
+            grid[0][0] += 1;
+            i ++;
+          }
+        }
+      }
+      else {
+        if (x !== cols - 2) {
+          x ++;
+          grid[y][x] ++;
+        }
+        else {
+          if (i + 1 === stoneCounter) {
+            extraTurn = true;
+          }
+          else {
+            y = 0;
+            x = cols - 2;
+            grid[y][x] ++;
+          }
+          if (!playerOnePlaying) {
+            i ++;
+            grid[1][cols - 1] += 1;
+          }
         }
       }
     }
-    else {
-      if (x !== cols - 2) {
-        x ++;
-        grid[y][x] ++;
-      }
-      else {
-        if (i + 1 === stoneCounter) {
-          extraTurn = true;
-        }
-        else {
-          y = 0;
-          x = cols - 2;
-          grid[y][x] ++;
-        }
-        if (!playerOnePlaying) {
-          i ++;
-          grid[1][cols - 1] += 1;
-        }
-      }
+    for (x = 0; x < 6; x ++) {
+      sumTop += grid[0][x];
+      sumBottom += grid[1][x];
     }
+    if (sumBottom === 0 || sumTop === 0) {
+      grid[0][0] += sumTop;
+      grid[1][cols - 1] += sumBottom;
+      for (x = )
+    }
+    if (!extraTurn) {
+      playerOnePlaying = !playerOnePlaying;
+    }
+    extraTurn = false;
   }
-  if (!extraTurn) {
-    playerOnePlaying = !playerOnePlaying;
-  }
-  extraTurn = false;
 }
