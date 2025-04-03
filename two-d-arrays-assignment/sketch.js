@@ -68,132 +68,140 @@ function drawGrid() {
 function mousePressed() {
   let x = Math.floor(mouseX / cellSize);
   let y = Math.floor(mouseY / cellSize);
-
-  moveTiles("basic", x, y);
-
-  // if (y === 0 && playerOnePlaying || y === 1 && !playerOnePlaying) {
-  //   stoneCounter = grid[y][x];
-  //   grid[y][x] = 0;
-  
-  //   for (let i = 0; i < stoneCounter; i ++) {
-  //     if (y === 0) {
-  //       if (x !== 1) {
-  //         x --;
-  //         grid[y][x] ++;
-  //       }
-  //       else {
-  //         if (i + 1 === stoneCounter) {
-  //           extraTurn = true;
-  //         }
-  //         else {
-  //           y = 1;
-  //           x = 1;
-  //           grid[y][x] ++;
-  //         }
-  //         if (playerOnePlaying) {
-  //           grid[0][0] += 1;
-  //           i ++;
-  //         }
-  //       }
-  //     }
-  //     else {
-  //       if (x !== cols - 2) {
-  //         x ++;
-  //         grid[y][x] ++;
-  //       }
-  //       else {
-  //         if (i + 1 === stoneCounter) {
-  //           extraTurn = true;
-  //         }
-  //         else {
-  //           y = 0;
-  //           x = cols - 2;
-  //           grid[y][x] ++;
-  //         }
-  //         if (!playerOnePlaying) {
-  //           i ++;
-  //           grid[1][cols - 1] += 1;
-  //         }
-  //       }
-  //     }
-  //   }
-  //   if (!extraTurn) {
-  //     playerOnePlaying = !playerOnePlaying;
-  //   }
-  //   extraTurn = false;
-  // }
+  if (y === 0 && playerOnePlaying || y === 1 && !playerOnePlaying) {
+    moveTiles("avalanch", x, y);
+  }
 }
 
 function moveTiles(gameMode, x, y) {
   sumTop = 0;
   sumBottom = 0;
+  let placeHolderX;
+  let placeHolderY;
 
   if (gameMode === "basic") {
-    if (y === 0 && playerOnePlaying || y === 1 && !playerOnePlaying) {
-      stoneCounter = grid[y][x];
-      grid[y][x] = 0;
+    stoneCounter = grid[y][x];
+    grid[y][x] = 0;
     
-      for (let i = 0; i < stoneCounter; i ++) {
-        if (y === 0) {
-          if (x !== 1) {
-            x --;
-            grid[y][x] ++;
-          }
-          else {
-            if (i + 1 === stoneCounter) {
-              extraTurn = true;
-            }
-            else {
-              y = 1;
-              x = 1;
-              grid[y][x] ++;
-            }
-            if (playerOnePlaying) {
-              grid[0][0] += 1;
-              i ++;
-            }
-          }
+    for (let i = 0; i < stoneCounter; i ++) {
+      if (y === 0) {
+        if (x !== 1) {
+          placeHolderX = x;
+          placeHolderY = y;
+          x --;
+          grid[y][x] ++;
         }
         else {
-          if (x !== cols - 2) {
-            x ++;
-            grid[y][x] ++;
+          if (i + 1 === stoneCounter) {
+            extraTurn = true;
           }
           else {
-            if (i + 1 === stoneCounter) {
-              extraTurn = true;
-            }
-            else {
-              y = 0;
-              x = cols - 2;
-              grid[y][x] ++;
-            }
-            if (!playerOnePlaying) {
-              i ++;
-              grid[1][cols - 1] += 1;
-            }
+            y = 1;
+            x = 1;
+            grid[y][x] ++;
+          }
+          if (playerOnePlaying) {
+            grid[0][0] += 1;
+            i ++;
           }
         }
       }
+      else {
+        if (x !== cols - 2) {
+          x ++;
+          grid[y][x] ++;
+        }
+        else {
+          if (i + 1 === stoneCounter) {
+            extraTurn = true;
+          }
+          else {
+            y = 0;
+            x = cols - 2;
+            grid[y][x] ++;
+          }
+          if (!playerOnePlaying) {
+            i ++;
+            grid[1][cols - 1] += 1;
+          }
+        }
+      }
+    }
   
-      for (let ix = 1; ix < 7; ix ++) {
-        sumTop += grid[0][ix];
-        sumBottom += grid[1][ix];
+    for (let ix = 1; ix < 7; ix ++) {
+      sumTop += grid[0][ix];
+      sumBottom += grid[1][ix];
+    }
+    if (sumBottom === 0 || sumTop === 0) {
+      grid[0][0] += sumTop;
+      grid[1][cols - 1] += sumBottom;
+      for (let n = 0; n < 2; n ++) {
+        for (let j = 1; j < 7; j ++) {
+          grid[n][j] = 0;
+        }
       }
-      if (sumBottom === 0 || sumTop === 0) {
-        grid[0][0] += sumTop;
-        grid[1][cols - 1] += sumBottom;
-        for (let n = 0; n < 2; n ++) {
-          for (let j = 1; j < 7; j ++) {
-            grid[n][j] = 0;
+        
+    }
+
+    if (!extraTurn) {
+      playerOnePlaying = !playerOnePlaying;
+    }
+    extraTurn = false;
+  }
+
+  else if (gameMode === "avalanch") {
+    avalanchLoop(x, y);
+  }
+}
+
+function avalanchLoop(x, y) {
+  if (grid[y][x] !== 0) {
+    stoneCounter = grid[y][x];
+    grid[y][x] = 0;
+  
+    for (let i = 0; i < stoneCounter; i ++) {
+      if (y === 0) {
+        if (x !== 1) {
+          placeHolderX = x;
+          placeHolderY = y;
+          x --;
+          grid[y][x] ++;
+        }
+        else {
+          if (i + 1 === stoneCounter) {
+            extraTurn = true;
+          }
+          else {
+            y = 1;
+            x = 1;
+            grid[y][x] ++;
+          }
+          if (playerOnePlaying) {
+            grid[0][0] += 1;
+            i ++;
           }
         }
-        
       }
-      if (!extraTurn) {
-        playerOnePlaying = !playerOnePlaying;
+      else {
+        if (x !== cols - 2) {
+          x ++;
+          grid[y][x] ++;
+        }
+        else {
+          if (i + 1 === stoneCounter) {
+            extraTurn = true;
+          }
+          else {
+            y = 0;
+            x = cols - 2;
+            grid[y][x] ++;
+          }
+          if (!playerOnePlaying) {
+            i ++;
+            grid[1][cols - 1] += 1;
+          }
+        }
       }
-      extraTurn = false;
     }
   }
 }
