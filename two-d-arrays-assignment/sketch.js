@@ -5,30 +5,31 @@
 // Extra for Experts:
 // - describe what you did to take this project "above and beyond"
 
-let cellSize;
 let grid = [];
 let rows = 2;
 let cols = 8;
 let playerOnePlaying = true;
 let extraTurn = false;
+let invalidSize = false;
 
 let sumTop;
 let sumBottom;
+let scaleFactor;
+let xPosition;
+let yPosition;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  if (width > height) {
-    cellSize = height / 10;
-  }
-  else {
-    cellSize = width / 10;
-  }
   createGrid();
   textAlign(CENTER);
+  textSize(20);
+  noStroke();
+
+  scaleFactor = width / 10;
 }
 
 function draw() {
-  background(220);
+  background(70, 150, 100);
   drawGrid();
 }
 
@@ -49,27 +50,33 @@ function createGrid() {
 function drawGrid() {
   for (let y = 0; y < rows; y ++) {
     for (let x = 0; x < cols; x ++) {
+
+      xPosition = scaleFactor + scaleFactor * x;
+      yPosition = scaleFactor + scaleFactor * y;
+
       if (x === 0 || x === cols - 1) {
         if (y === 0) {
           fill("black");
-          rect(x * cellSize, y * cellSize, cellSize, 2 * cellSize);
+          rect(xPosition, yPosition, scaleFactor, 2 * scaleFactor);
         }
       }
       else {
         fill("white");
-        rect(x * cellSize, y * cellSize, cellSize, cellSize);
+        rect(xPosition, yPosition, scaleFactor, scaleFactor);
       }
       fill("red");
-      text(grid[y][x], x * cellSize, y * cellSize, cellSize, cellSize);
+      text(grid[y][x], xPosition, yPosition  + scaleFactor / 2, scaleFactor, scaleFactor);
     }
   }
 }
 
 function mousePressed() {
-  let x = Math.floor(mouseX / cellSize);
-  let y = Math.floor(mouseY / cellSize);
+  let y = Math.floor(mouseY / scaleFactor) - 1;
+  let x = Math.floor(mouseX / scaleFactor) - 1;
+
+
   if (y === 0 && playerOnePlaying || y === 1 && !playerOnePlaying) {
-    moveTiles("avalanch", x, y);
+    moveTiles("basic", x, y);
   }
 }
 
