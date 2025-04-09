@@ -21,10 +21,15 @@ let sumBottom;
 let scaleFactor;
 let xPosition;
 let yPosition;
-let lastCounter;
+let lastCounter = 0;
 let counterConstant = 500;
 let stoneCounter;
 let callMovement = false;
+let gridChangeArray = [];
+let placeHolderX;
+let placeHolderY;
+let totalTilesEffected = 0;
+let changesBeenMade = false;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -39,36 +44,6 @@ function setup() {
 function draw() {
   background(70, 150, 100);
   drawGrid();
-  callTileMovement();
-}
-
-function callTileMovement() {
-  if (lastCounter - counterConstant> millis() && stonesMovedCounter < stoneCounter) {
-    stonesMovedCounter += 1;
-    lastCounter = millis();
-    tileMovement();
-  }
-
-
-  for (let ix = 1; ix < 7; ix ++) {
-    sumTop += grid[0][ix];
-    sumBottom += grid[1][ix];
-  }
-  if (sumBottom === 0 || sumTop === 0) {
-    grid[0][0] += sumTop;
-    grid[1][cols - 1] += sumBottom;
-    for (let n = 0; n < 2; n ++) {
-      for (let j = 1; j < 7; j ++) {
-        grid[n][j] = 0;
-      }
-    }
-      
-  }
-
-  if (!extraTurn) {
-    playerOnePlaying = !playerOnePlaying;
-  }
-  extraTurn = false;
 }
 
 function createGrid() {
@@ -108,57 +83,116 @@ function drawGrid() {
   }
 }
 
-function mousePressed() {
-  if (!callMovement) {
-    y = Math.floor(mouseY / scaleFactor) - 1;
-    x = Math.floor(mouseX / scaleFactor) - 1;
-    stonesMovedCounter = 0;
-    stoneCounter = grid[y][x];
-    grid[y][x] = 0;
+function mouseReleased() {
+  y = Math.floor(mouseY / scaleFactor) - 1;
+  x = Math.floor(mouseX / scaleFactor) - 1;
+  placeHolderX = x;
+  placeHolderY = y;
+  gridChangeArray = [];
   
-    if ((y === 0 && playerOnePlaying || y === 1 && !playerOnePlaying) && x > 0 && x < 8) {
-      callMovement = true;
-    }
+  if ((y === 0 && playerOnePlaying || y === 1 && !playerOnePlaying) && x > 0 && x < 8) {
+    tileMovement();
   }
 }
 
 function tileMovement() {
-  if (y === 0) {
-    if (x !== 1) {
-      x --;
-      grid[y][x] ++;
-    }
-    else {
-      if (stonesMovedCounter + 1 === stoneCounter) {
-        extraTurn = true;
+  if (grid[y][x] !== 0) {
+    stoneCounter = grid[y][x];
+    grid[y][x] = 0;
+    gridChangeArray.push(0);
+  
+    for (let i = 0; i < stoneCounter; i ++) {
+      console.log("hi");
+      if (y === 0) {
+        if (x !== 1) {
+          x --;
+          gridChangeArray.push(1);
+        }
+        else {
+          if (i + 1 === stoneCounter && playerOnePlaying) {
+            extraTurn = true;
+          }
+          else {
+            y = 1;
+            x = 1;
+            gridChangeArray.push(1);
+          }
+          if (playerOnePlaying) {
+            gridChangeArray.push(1);
+            i ++;
+          }
+          else {
+            gridChangeArray.push(0);
+          }
+        }
       }
       else {
-        y = 1;
-        x = 1;
-        grid[y][x] ++;
-      }
-      if (playerOnePlaying) {
-        grid[0][0] += 1;
-        stonesMovedCounter ++;
+        if (x !== cols - 2) {
+          x ++;
+          gridChangeArray.push(1);
+        }
+        else {
+          if (i + 1 === stoneCounter && !playerOnePlaying) {
+            extraTurn = true;
+          }
+          else {
+            y = 0;
+            x = cols - 2;
+            gridChangeArray.push(1);
+          }
+          if (!playerOnePlaying) {
+            i ++;
+            gridChangeArray.push(1);
+          }
+          else {
+            gridChangeArray.push(0);
+          }
+        }
       }
     }
   }
-  else {
-    if (x !== cols - 2) {
-      x ++;
-      grid[y][x] ++;
+  
+  for (let ix = 1; ix < 7; ix ++) {
+    sumTop += grid[0][ix];
+    sumBottom += grid[1][ix];
+  }
+  if (sumBottom === 0 || sumTop === 0) {
+    grid[0][0] += sumTop;
+    grid[1][cols - 1] += sumBottom;
+    for (let n = 0; n < 2; n ++) {
+      for (let j = 1; j < 7; j ++) {
+        grid[n][j] = 0;
+      }
+    }
+      
+  }
+
+  if (!extraTurn) {
+    playerOnePlaying = !playerOnePlaying;
+  }
+  extraTurn = false;
+
+  gridChangesMade = true;
+}
+
+function changeGrid() {
+  if (lastCounter - counterConstant > millis() && gridChangesMade) {
+    grid[placeHolderX][placeHolderY] += gridChangeArray[totalTilesEffected];
+    totalTilesEffected += 1;
+    if (totalTilesEffected - 1 === gridChangeArray.length) {
+      gridChangesMade = false;
     }
     else {
-      if (stonesMovedCounter + 1 === stoneCounter) {
-        extraTurn = true;
+      if (placeHolderX === 0) {
+        placeHolderX = 1;
+        placeHolderY = 1;
+      }
+      else if (placeHolderX === 7) {
+        placeHolderX = 6;
+        placeHolderY = 0;
       }
       else {
-        y = 0;
-        x = cols - 2;
-        grid[y][x] ++;
-      }
-      if (!playerOnePlaying) {
-        grid[1][cols - 1] += 1;
+        placeHolderX += 1;
       }
     }
   }
