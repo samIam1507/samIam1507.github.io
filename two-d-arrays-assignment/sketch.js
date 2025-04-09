@@ -15,6 +15,8 @@ let gameMode = "avalanch";
 let x; 
 let y;
 let stonesMovedCounter;
+let gridChangesMade;
+let mouseJustPressed = false;
 
 let sumTop;
 let sumBottom;
@@ -30,6 +32,7 @@ let placeHolderX;
 let placeHolderY;
 let totalTilesEffected = 0;
 let changesBeenMade = false;
+let doneChanging = true;
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
@@ -44,6 +47,12 @@ function setup() {
 function draw() {
   background(70, 150, 100);
   drawGrid();
+  if (gridChangesMade) {
+    changeGrid();
+  }
+  if (doneChanging) {
+    mouseJustPressed = false;
+  }
 }
 
 function createGrid() {
@@ -83,19 +92,24 @@ function drawGrid() {
   }
 }
 
-function mouseReleased() {
-  y = Math.floor(mouseY / scaleFactor) - 1;
-  x = Math.floor(mouseX / scaleFactor) - 1;
-  placeHolderX = x;
-  placeHolderY = y;
-  gridChangeArray = [];
-  
-  if ((y === 0 && playerOnePlaying || y === 1 && !playerOnePlaying) && x > 0 && x < 8) {
-    tileMovement();
+function mousePressed() {
+  if (!mouseJustPressed) {
+    doneChanging = false;
+    mouseJustPressed = true;
+    y = Math.floor(mouseY / scaleFactor) - 1;
+    x = Math.floor(mouseX / scaleFactor) - 1;
+    placeHolderX = x;
+    placeHolderY = y;
+    lastCounter = millis();
+    
+    if ((y === 0 && playerOnePlaying || y === 1 && !playerOnePlaying) && x > 0 && x < 8) {
+      tileMovement();
+    }
   }
 }
 
 function tileMovement() {
+  gridChangeArray = [];
   if (grid[y][x] !== 0) {
     stoneCounter = grid[y][x];
     grid[y][x] = 0;
@@ -121,9 +135,6 @@ function tileMovement() {
             gridChangeArray.push(1);
             i ++;
           }
-          else {
-            gridChangeArray.push(0);
-          }
         }
       }
       else {
@@ -143,9 +154,6 @@ function tileMovement() {
           if (!playerOnePlaying) {
             i ++;
             gridChangeArray.push(1);
-          }
-          else {
-            gridChangeArray.push(0);
           }
         }
       }
@@ -167,20 +175,34 @@ function tileMovement() {
       
   }
 
-  if (!extraTurn) {
-    playerOnePlaying = !playerOnePlaying;
-  }
-  extraTurn = false;
-
   gridChangesMade = true;
 }
 
 function changeGrid() {
-  if (lastCounter - counterConstant > millis() && gridChangesMade) {
-    grid[placeHolderX][placeHolderY] += gridChangeArray[totalTilesEffected];
+  if (lastCounter + counterConstant < millis() && gridChangesMade) {
+    lastCounter = millis();
+    if (!(placeHolderX === 0 && !playerOnePlaying || placeHolderX === 7 && playerOnePlaying)) {
+      grid[placeHolderY][placeHolderX] += gridChangeArray[totalTilesEffected];
+    }
+    else {
+      totalTilesEffected --;
+    }
     totalTilesEffected += 1;
-    if (totalTilesEffected - 1 === gridChangeArray.length) {
+    if (totalTilesEffected === gridChangeArray.length) {
       gridChangesMade = false;
+      totalTilesEffected = 0;
+      if (gameMode === "avalanch" && grid[placeHolderY][placeHolderX] > 1 && placeHolderX > 0 && placeHolderX < 7) {
+        x = placeHolderX;
+        y = placeHolderY;
+        tileMovement();
+      }
+      else {
+        doneChanging = true;
+      }
+      if (!(placeHolderX === 0 && playerOnePlaying || placeHolderX === 7 && !playerOnePlaying)) {
+        playerOnePlaying = !playerOnePlaying;
+      }
+  
     }
     else {
       if (placeHolderX === 0) {
@@ -191,8 +213,11 @@ function changeGrid() {
         placeHolderX = 6;
         placeHolderY = 0;
       }
+      else if (placeHolderY === 1) {
+        placeHolderX ++;
+      }
       else {
-        placeHolderX += 1;
+        placeHolderX --;
       }
     }
   }
