@@ -83,8 +83,10 @@ function draw() {
   }
 }
 
-// sets the 
+// sets the display based on the currentMode
 function modeDisplay() {
+
+  // displays text showing which player won
   if (currentMode === "winnerScreen") {
     if (topWinner) {
       text("Player One Has Won", width / 3, height / 2);
@@ -96,6 +98,8 @@ function modeDisplay() {
       text("It Was A Tie", width / 3, height / 2);
     }
   }
+  
+  // displays logo and text indicating different modes
   else if (currentMode === "startScreen") {
     image(home, width / 2, height / 2, 3 * width / 5, 3 * width / 5);
     textSize(40);
@@ -104,11 +108,14 @@ function modeDisplay() {
     text("This Side Basic", width / 7, height / 2);
     text("This Side Avalanch", 6 * width  / 7, height / 2);
   }
+
+  // sets playingGame to true, which activates draw loop to draw grid and start game play
   else if (currentMode === "playGame") {
     playingGame = true;
   }
 }
 
+// shows the number of the current player playing on the cursor (one top, two bottom)
 function cursorDisplay() {
   if (playerOnePlaying) {
     cursor("one.png");
@@ -118,6 +125,7 @@ function cursorDisplay() {
   }
 }
 
+// creates the grid with default amount of tiles in each location
 function createGrid() {
   grid = [];
   for (y = 0; y < rows; y ++) {
@@ -133,6 +141,7 @@ function createGrid() {
   }
 }
 
+// draws grid by adjusting x and y iterations to the scale factor
 function drawGrid() {
   for (y = 0; y < rows; y ++) {
     for (x = 0; x < cols; x ++) {
@@ -140,6 +149,7 @@ function drawGrid() {
       xPosition = scaleFactor + scaleFactor * x;
       yPosition = scaleFactor + scaleFactor * y;
 
+      // fills according to position
       if (x === 0 || x === cols - 1) {
         if (y === 0) {
           fill("black");
@@ -156,7 +166,10 @@ function drawGrid() {
   }
 }
 
+// called when mouse pressed, activates various functions including calling tile movemement or switching currentMode
 function mousePressed() {
+
+  // if currentMode is startScreen, it will determine gameMode based on mouseX and change currentMode to playGame
   if (currentMode === "startScreen") {
     createGrid();
     currentMode = "playGame";
@@ -167,10 +180,15 @@ function mousePressed() {
       gameMode = "avalanch";
     }
   }
+
+  // if currentMode is winnerScreen, resets game and changes currentMode to playGame
   else if (currentMode === "winnerScreen") {
     createGrid();
     currentMode = "playGame";
   }
+
+  // if currentMode is play game, checks if the location is on the grid of the player meant to be playing
+  // if it is, calls tileMovement.
   else if (currentMode === "playGame") {
     if (doneChanging) {
       y = Math.floor(mouseY / scaleFactor) - 1;
@@ -186,7 +204,10 @@ function mousePressed() {
   }
 }
 
+// determines the changes that need to be made to the grid based on which player is playing and the amount of tiles being moved
 function tileMovement() {
+
+  // sets initial perameters & checks that there are tiles in the selected grid
   doneChanging = false;
   gridChangeArray = [];
   if (grid[y][x] !== 0) {
@@ -194,12 +215,19 @@ function tileMovement() {
     grid[y][x] = 0;
     gridChangeArray.push(0);
   
+    // iterates through for every tile in square pressed, moving through x and y positions and adding values to gridChangeArray
     for (let i = 0; i < stoneCounter; i ++) {
+
+      // instructions while on top
       if (y === 0) {
+
+        // instructions while not on final square of top
         if (x !== 1) {
           x --;
           gridChangeArray.push(1);
         }
+
+        // checks if tile landing in goal and gives extra turn, otherwise moves down to bottom row
         else {
           if (i + 1 === stoneCounter && playerOnePlaying) {
             extraTurn = true;
@@ -215,11 +243,17 @@ function tileMovement() {
           }
         }
       }
+
+      // instructions while on bottom row
       else {
+
+        // if not at last square, moves forwards and push 1
         if (x !== cols - 2) {
           x ++;
           gridChangeArray.push(1);
         }
+
+        // othewrise check if last square is in goal and gives extra turn if so, otherwise moving to top row and pushing 1
         else {
           if (i + 1 === stoneCounter && !playerOnePlaying) {
             extraTurn = true;
@@ -237,30 +271,21 @@ function tileMovement() {
       }
     }
   }
-  
-  for (let z = 1; z < 7; z ++) {
-    sumTop += grid[0][z];
-    sumBottom += grid[1][z];
-  }
-  if (sumBottom === 0 || sumTop === 0) {
-    grid[0][0] += sumTop;
-    grid[1][cols - 1] += sumBottom;
-    for (let n = 0; n < 2; n ++) {
-      for (let j = 1; j < 7; j ++) {
-        grid[n][j] = 0;
-      }
-    }
-      
-  }
 
+  // prepares changeGrid to be called
   gridChangesMade = true;
 }
 
+// slowly adds the changes made in tileMovement
 function changeGrid() {
   sumTop = 0;
   sumBottom = 0;
+
+  // only runs after 500 milliseconds have elapsed
   if (lastCounter + counterConstant < millis() && gridChangesMade) {
     lastCounter = millis();
+
+    // adds 1 to grid location unless it is the opponents goal, otherwise cancels increase in affected tiles
     if (!(placeHolderX === 0 && !playerOnePlaying || placeHolderX === 7 && playerOnePlaying)) {
       grid[placeHolderY][placeHolderX] += gridChangeArray[totalTilesEffected];
     }
@@ -268,6 +293,8 @@ function changeGrid() {
       totalTilesEffected --;
     }
     totalTilesEffected += 1;
+
+    // if all changes made, resets values and calls tileMovement again if it is avalanch mode and it is in a candidate square with tiles
     if (totalTilesEffected === gridChangeArray.length) {
       gridChangesMade = false;
       totalTilesEffected = 0;
@@ -280,6 +307,8 @@ function changeGrid() {
       else if (!(placeHolderX === 0 && playerOnePlaying || placeHolderX === 7 && !playerOnePlaying)) {
         playerOnePlaying = !playerOnePlaying;
       }
+
+      // iterates through the grid to sum the top and bottom rows
       for (let iy = 0; iy < 2; iy ++) {
         for (let ix = 1; ix < 7; ix ++) {
           if (iy === 0) {
@@ -290,6 +319,8 @@ function changeGrid() {
           }
         }
       }
+
+      // if either row is empty adds all tiles to the goals and checks for a winner
       if (sumBottom === 0 || sumTop === 0) {
         grid[0][0] += sumTop;
         grid[1][7] += sumBottom;
@@ -302,6 +333,8 @@ function changeGrid() {
         currentMode = "winnerScreen";
       }
     }
+
+    // otherswise moves placeHolderX and placeHolderY according to the current location
     else {
       if (placeHolderX === 0) {
         placeHolderX = 1;
@@ -317,59 +350,6 @@ function changeGrid() {
       else {
         placeHolderX --;
       }
-    }
-  }
-}
-
-function avalanchLoop(x, y) {
-  if (grid[y][x] !== 0) {
-    stoneCounter = grid[y][x];
-    grid[y][x] = 0;
-  
-    for (let i = 0; i < stoneCounter; i ++) {
-      if (y === 0) {
-        if (x !== 1) {
-          x --;
-          grid[y][x] ++;
-        }
-        else {
-          if (i + 1 === stoneCounter) {
-            extraTurn = true;
-          }
-          else {
-            y = 1;
-            x = 1;
-            grid[y][x] ++;
-          }
-          if (playerOnePlaying) {
-            grid[0][0] += 1;
-            i ++;
-          }
-        }
-      }
-      else {
-        if (x !== cols - 2) {
-          x ++;
-          grid[y][x] ++;
-        }
-        else {
-          if (i + 1 === stoneCounter) {
-            extraTurn = true;
-          }
-          else {
-            y = 0;
-            x = cols - 2;
-            grid[y][x] ++;
-          }
-          if (!playerOnePlaying) {
-            i ++;
-            grid[1][cols - 1] += 1;
-          }
-        }
-      }
-    }
-    if (grid[y][x] > 1 && x !== 0 && x !== 7) {
-      avalanchLoop(x, y);
     }
   }
 }
