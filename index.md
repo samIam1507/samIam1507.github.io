@@ -12,6 +12,7 @@
 - [Game of Life](game-of-life-demo)
 - [Character Moving in Grid](character-grid-demo)
 - [platformer](13-platformer)
+- [Walker OOP] (oop-walker-demo)
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene-assignment)
