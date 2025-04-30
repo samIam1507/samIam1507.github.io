@@ -15,6 +15,7 @@
 - [Walker OOP] (oop-walker-demo)
 - [Fireworks OOP] (oop-firework-demo)
 - [Connected Nodes OOP] (oop-nodes-demo)
+- [Local Storage] (local-storage)
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene-assignment)
