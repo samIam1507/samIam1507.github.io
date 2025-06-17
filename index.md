@@ -18,6 +18,7 @@
 - [Local Storage](local-storage)
 - [2D collide](2d-collide)
 - [Sierpinski Triangle](triangle-demo)
+- [Comp Sci 30 Final](samuel-wardell-final)
 
 # CS30 Projects
 - [Interactive Scene](interactive-scene-assignment)
